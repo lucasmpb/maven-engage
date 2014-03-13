@@ -1,0 +1,44 @@
+<?php
+
+namespace MavenShop\Core\Domain;
+
+// Exit if accessed directly 
+if ( !defined( 'ABSPATH' ) )
+	exit;
+
+
+class ProductRolePrice extends \Maven\Core\DomainObject {
+	
+	private $productId;
+	private $role;
+	private $price;
+	
+	public function __construct ( $id = false ) {
+		parent::__construct( $id );
+	}
+	
+	public function getProductId () {
+		return $this->productId;
+	}
+
+	public function getRole () {
+		return $this->role;
+	}
+
+	public function getPrice () {
+		return $this->price;
+	}
+
+	public function setProductId ( $productId ) {
+		$this->productId = $productId;
+	}
+
+	public function setRole ( $role ) {
+		$this->role = $role;
+	}
+
+	public function setPrice ( $price ) {
+		$this->price = $price;
+	}
+
+}

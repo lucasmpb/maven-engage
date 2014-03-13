@@ -1,0 +1,42 @@
+<?php
+
+//
+//namespace MavenShop\Core;
+//
+//// Exit if accessed directly 
+//if ( ! defined( 'ABSPATH' ) )
+//	exit;
+//
+//
+//
+//class Cart extends \Maven\Core\Cart{
+//	
+//	/**
+//	 *
+//	 * @var \MavenShop\Core\Cart
+//	 */
+//	private static $instance;
+//	
+//	public function __construct( ) {
+//		
+//		$registry = \MavenShop\Settings\ShopRegistry::instance();
+//		
+//		parent::__construct( $registry );
+//	}
+//	
+//	
+//	public static function current(){
+//		
+//		if ( ! self::$instance ){
+//			self::$instance = new \MavenShop\Core\Cart();
+//		}
+//		
+//		return self::$instance;
+//	}
+//	
+//	public function addToCart( \Maven\Core\Domain\OrderItem $item ){ 
+//		return parent::addToCart( $item, \MavenShop\Settings\ShopRegistry::instance() );
+//	}
+//	
+//	
+//}

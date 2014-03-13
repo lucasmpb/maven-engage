@@ -1,0 +1,385 @@
+<?php
+
+namespace MavenShop\Admin\Controllers;
+
+class Products extends \MavenShop\Admin\Controllers\ShopAdminController {
+
+	public function __construct() {
+		parent::__construct();
+	}
+
+	public function admin_init() {
+		
+	}
+
+	public function showForm() {
+
+		$categoryManager = new \MavenShop\Core\CategoryManager();
+
+		$categories = $categoryManager->getAll(new \MavenShop\Core\Domain\CategoryFilter());
+
+		$this->addJSONData( 'cachedCategories', $categories );
+
+		$this->getOutput()->setTitle( $this->__( "Products" ) );
+
+		$this->getOutput()->loadAdminView( "products" );
+	}
+
+	public function cancel() {
+		
+	}
+
+	public function save() {
+		
+	}
+
+	public function showList() {
+		
+	}
+
+	public function variationEntryPoint() {
+
+		$event = $this->getRequest()->getProperty( 'event' );
+
+		switch ( $event ) {
+			case 'update':
+
+				$manager = new \MavenShop\Core\VariationManager();
+
+				$data = $this->getRequest()->getProperty( 'data' );
+
+				$variation = new \Maven\Core\Domain\Variation();
+
+				$variation->load( $data );
+
+				$variation = $manager->save( $variation );
+
+				$this->getOutput()->sendData( $variation->toArray() );
+				break;
+		}
+	}
+
+	public function matrixEntryPoint() {
+
+		try {
+			$event = $this->getRequest()->getProperty( 'event' );
+
+			$manager = new \MavenShop\Core\ProductManager();
+
+			switch ( $event ) {
+
+				case 'read':
+
+					$modelId = $this->getRequest()->getProperty( 'id' );
+
+					if ( $modelId ) {
+						try {
+							$product = new \MavenShop\Core\Domain\Product();
+							$product->setId( $modelId );
+
+							$matrix = $this->buildMatrix( $product );
+
+							$product = $product->toArray();
+							$product[ 'matrixTable' ] = $matrix;
+
+							$this->getOutput()->sendData( $product );
+						} catch ( \Maven\Exceptions\MavenException $ex ) {
+							$this->getOutput()->sendError( $ex->getMessage() );
+						}
+					}
+					break;
+			}
+		} catch ( Exception $ex ) {
+			$this->getOutput()->sendError( $ex->getMessage() );
+		}
+	}
+
+	public function productEntryPoint() {
+		try {
+			$event = $this->getRequest()->getProperty( 'event' );
+
+			$manager = new \MavenShop\Core\ProductManager();
+
+			switch ( $event ) {
+				case 'create':
+					$data = $this->getRequest()->getProperty( 'data' );
+
+					$product = new \MavenShop\Core\Domain\Product();
+
+					$product->load( $data );
+
+					$manager->addProduct( $product );
+
+					$this->getOutput()->sendData( $product->toArray() );
+
+					break;
+
+				case 'read':
+
+					$modelId = $this->getRequest()->getProperty( 'id' );
+
+					if ( $modelId ) {
+						try {
+							$product = $manager->get( $modelId );
+
+							// Comente estas lineas, porque estaba reventando el guardado de los productos
+							// Porque se estaba enviando un array comun, y en realidad deberia ser una coleccion de objetos
+//							$pricesByRole = $this->combineRolesAndSort( $product->getPricesByRole() );
+//							$product->setPricesByRole( $pricesByRole );
+
+							$matrix = "";
+							if ( $product->isVariationsEnabled() ) {
+
+								$matrix = $this->buildMatrix( $product );
+							}
+
+							$product = $product->toArray();
+
+							$product[ 'matrixTable' ] = $matrix;
+
+							$this->getOutput()->sendData( $product );
+						} catch ( \Maven\Exceptions\MavenException $ex ) {
+							$this->getOutput()->sendError( $ex->getMessage() );
+						}
+					} else {
+						$data = $this->getRequest()->getProperty( 'data' );
+						$filter = new \MavenShop\Core\Domain\ProductFilter();
+
+						$top = $this->getRequest()->getProperty( 'top' );
+						$skip = $this->getRequest()->getProperty( 'skip' );
+
+						if ( key_exists( 'name', $data ) && $data[ 'name' ] )
+							$filter->setName( $data[ 'name' ] );
+
+						if ( key_exists( 'category', $data ) && $data[ 'category' ] )
+							$filter->setCategory( $data[ 'category' ] );
+
+						$page = $data[ 'page' ] - 1; //We use 0-based pages
+						$perPage = $data[ 'per_page' ];
+						$sortBy = '';
+						if ( $data && key_exists( 'sort_by', $data ) )
+							$sortBy = \Maven\Core\Utils::unCamelize( $data[ 'sort_by' ], '_' );
+
+						$order = '';
+						if ( $data && key_exists( 'order', $data ) )
+							$order = $data[ 'order' ];
+						//var_dump($data);
+						$intances = $manager->getProducts( $filter, $sortBy, $order, ($page * $perPage ), $perPage );
+						$count = $manager->getProductsCount( $filter );
+
+						$response = array();
+						foreach ( $intances as $row ) {
+
+							$temp = $row->toArray();
+
+							$temp[ 'stock' ] = intval( $temp[ 'stock' ] );
+							$temp[ 'price' ] = floatval( $temp[ 'price' ] );
+
+							$response[] = $temp;
+						}
+
+						$out[] = array( 'total_entries' => intval( $count ) );
+						$out[] = $response;
+
+						$this->getOutput()->sendData( $out );
+					}
+					break;
+
+				case 'update':
+
+					$data = $this->getRequest()->getProperty( 'data' );
+
+					$product = new \MavenShop\Core\Domain\Product();
+
+					$product->load( $data );
+
+					$variations = $product->getVariations();
+
+					$product = $manager->addProduct( $product );
+
+					$variationManager = new \MavenShop\Core\VariationManager();
+					$variations = $variationManager->saveMultiple( $product->getVariations() );
+					$product->setVariations( $variations );
+
+					if ( isset( $data[ 'regenerate' ] ) && $data[ 'regenerate' ] ) {
+
+						$matrix = $this->buildMatrix( $product );
+
+						$product = $product->toArray();
+						$product[ 'matrixTable' ] = $matrix;
+					} else
+						$this->saveVariations( $product, $data[ 'matrixTable' ] );
+
+					$this->getOutput()->sendData( is_array( $product ) ? $product : $product->toArray()  );
+
+					break;
+
+				case 'delete':
+					$modelId = $this->getRequest()->getProperty( 'id' );
+
+					$manager->delete( $modelId );
+
+					//Empty response
+					$this->getOutput()->sendData( 'deleted' );
+
+					break;
+			}
+		} catch ( Exception $ex ) {
+			$this->getOutput()->sendError( $ex->getMessage() );
+		}
+	}
+
+	/**
+	 * Combine existing prices by role
+	 * @param array $existingRoles
+	 * @return array
+	 */
+	private function combineRolesAndSort( $existingRoles ) {
+
+		if ( ! $existingRoles ) {
+			$existingRoles = array();
+		}
+
+		$roleManager = new \Maven\Security\RoleManager();
+		$roles = $roleManager->getRoles();
+
+		$rolesKeys = array();
+
+		foreach ( $roles as $role ) {
+			$rolesKeys[ $role->getId() ] = 0;
+		}
+
+		$existingRoles = $existingRoles + $rolesKeys;
+		ksort( $existingRoles );
+
+		return $existingRoles;
+	}
+
+	private function saveVariations( \MavenShop\Core\Domain\Product $product, $variations ) {
+
+
+		if ( ! $variations )
+			return;
+
+		$variationGroupManager = new \MavenShop\Core\VariationGroupManager();
+
+		parse_str( $variations, $variations );
+
+		foreach ( $variations as $key => $variationRow ) {
+			foreach ( $variationRow as $key => $variation ) {
+
+				$variationGroup = new \Maven\Core\Domain\VariationGroup();
+				$variationGroup->setId( $variation[ 'groupId' ] );
+				$variationGroup->setPrice( $variation[ 'price' ] );
+				$variationGroup->setKey( $variation[ 'groupKey' ] );
+				$variationGroup->setIdentifier( $variation[ 'identifier' ] );
+				$variationGroup->setPriceOperator( $variation[ 'priceType' ] );
+				$variationGroup->setQuantity( $variation[ 'quantity' ] );
+				$variationGroup->setThingId( $product->getId() );
+
+
+				$variationGroupManager->save( $variationGroup );
+
+//				if ($variation['identifier']=="SKU3"){
+//					var_dump($variationGroup);die('hola!');
+//				}
+			}
+		}
+	}
+
+	private function buildMatrix( $product ) {
+
+		$matrix = null;
+
+		$variationManager = new \MavenShop\Core\VariationManager();
+
+		$matrix = $variationManager->getMatrix( $product->getId() );
+
+
+		ob_start();
+		?>
+
+		<table width="100%" class="table table-striped table-hover table-bordered dataTable" >
+			<thead>
+				<tr>
+					<?php foreach ( $matrix[ 'header' ] as $id => $variation ) : ?>
+						<th>
+							<?php echo $variation->getName(); ?>  
+						</th>
+					<?php endforeach; ?>
+					<th>
+						Sku
+					</th>
+					<th>
+						Price
+					</th>
+					<th>
+						Price Type
+					</th>
+					<th>
+						Quantity
+					</th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php for ( $j = 0; $j <= $matrix[ 'rows' ] - 1; $j ++  ) : ?>
+					<tr>
+						<?php
+						$groupKey = "";
+						foreach ( $matrix[ 'header' ] as $id => $variation ) :
+							?>
+							<td>
+
+								<input type="hidden" value="<?php echo $id; ?>" name="variation[<?php echo $j; ?>][variationId]"/>
+								<input type="hidden" value="<?php echo $matrix[ 'matrix' ][ $id ][ $j ][ 'id' ]; ?>" name="variation[<?php echo $j; ?>][options][<?php echo $id; ?>]"/>
+								<?php
+								echo $matrix[ 'matrix' ][ $id ][ $j ][ 'name' ];
+								if ( $groupKey )
+									$groupKey .="-" . $matrix[ 'matrix' ][ $id ][ $j ][ 'id' ];
+								else
+									$groupKey .=$matrix[ 'matrix' ][ $id ][ $j ][ 'id' ];
+								?>
+
+							</td>
+							<?php
+						endforeach;
+
+						$group = $variation->getGroup( $groupKey );
+						?>
+
+						<td>
+							<input type="hidden" value="<?php echo $groupKey ?>" name="variation[<?php echo $j; ?>][groupKey]"/>
+							<input type="hidden" value="<?php echo $group->getId(); ?>" name="variation[<?php echo $j; ?>][groupId]"/>
+							<input class="m-wrap small" name="variation[<?php echo $j; ?>][identifier]" value="<?php echo $group->getIdentifier(); ?>" />
+						</td>
+						<td>
+							<input class="m-wrap small" name="variation[<?php echo $j; ?>][price]" value="<?php echo $group->getPrice(); ?>" />
+						</td>
+						<td>
+							<select name="variation[<?php echo $j; ?>][priceType]" >
+								<option></option>
+								<?php
+								$pricesOperators = \Maven\Core\Domain\VariationOptionPriceOperator::getOperators();
+								foreach ( $pricesOperators as $key => $value ):
+									$selected = $key == $group->getPriceOperator() ? 'selected="selected"' : '';
+									?>	
+
+									<option <?php echo $selected ?> value='<?php echo $key ?>'><?php echo $value ?></option>
+								<?php endforeach; ?>
+							</select> 
+						</td>
+						<td>
+							<input class="m-wrap small"  name="variation[<?php echo $j; ?>][quantity]" value="<?php echo $group->getQuantity(); ?>" />
+						</td>
+					</tr>
+				<?php endfor; ?>
+
+		</table>
+		<?php
+		$table = ob_get_contents();
+		ob_get_clean();
+
+		return $table;
+	}
+
+}

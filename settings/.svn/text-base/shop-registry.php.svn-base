@@ -1,0 +1,99 @@
+<?php
+
+namespace MavenShop\Settings; 
+use \Maven\Settings\Option;
+
+class ShopRegistry extends \Maven\Settings\WordpressRegistry{
+	
+	/**
+	 * 
+	 * @var StatsRegistry 
+	 */
+	private static $instance; 
+	
+	protected function __construct(  ){
+
+		parent::__construct(  );
+		
+	}
+	
+	/**
+	 *
+	 * @return \MavenShop\Settings\ShopRegistry
+	 */
+	static function instance(){
+		if ( ! isset( self::$instance )){ 
+			
+			$adminEmail = get_bloginfo('admin_email') ;
+			
+			
+			$defaultOptions = array(
+				new Option(
+							"emailNotificationsTo",
+							"Send email notifications to",
+							$adminEmail,
+							''
+						),
+				new Option(
+							"actions",
+							"Actions",
+							array(),
+							''
+						),
+				new Option(
+							"shopSlugPrefix", 
+							'Shop Url Prefix',
+							''
+						),
+				new Option(
+							"shopSlug", 
+							'Shop Url Prefix',
+							'shop'
+						),
+				new Option(
+							"wholesaleRole", 
+							'Wholesale Role',
+							'wholesale'
+						),
+				);
+			
+			
+			self::$instance = new self( ); 
+			self::$instance->setOptions( $defaultOptions );
+			
+		}
+		
+		return self::$instance;
+	}
+	
+	
+	function getEmailNotificationsTo(){
+		
+		return $this->getValue('emailNotificationsTo');
+	}
+	
+	
+	public function getActions(){
+		
+		return $this->getValue('actions');
+	}
+	
+	public function isActionEnabled( $actionName ){
+		$actions = $this->getActions();
+		
+		return ( isset($actions[ $actionName ] ) );
+	}
+	
+	public function getShopSlugPrefix(){
+		return $this->getValue( 'shopSlugPrefix' );
+	}
+	
+	public function getShopSlug(){
+		return $this->getValue( 'shopSlug' );
+	}
+	
+	public function getWholesaleRole(){
+		return $this->getValue( 'wholesaleRole' );
+	}
+	
+}

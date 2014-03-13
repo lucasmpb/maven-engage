@@ -1,0 +1,13 @@
+<?php
+
+namespace MavenShop\Core\Mappers;
+use \MavenShop\Core\EventsConfig,
+		MavenShop\Core\Domain\EventFilterType;
+
+class WpSearchMapper extends \Maven\Core\Db\WordpressMapper {
+
+	
+	
+	 
+	
+}

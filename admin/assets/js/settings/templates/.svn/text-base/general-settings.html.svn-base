@@ -1,0 +1,28 @@
+<div class="control-group">
+		<label class="control-label">{{emailNotificationsTo}}</label>
+		<div class="controls">
+			<input id="emailNotificationsTo" type="text" class="m-wra tags" value="" />
+		</div>
+	</div>
+<div  class="control-group">
+	<label class="control-label" for="shopSlugPrefix">{{shopSlugPrefix}}</label>
+	<div class="controls">
+		<input  class="m-wra" type="text" id="shopSlugPrefix" name="shopSlugPrefix" />
+	</div>
+</div>
+<div  class="control-group">
+	<label class="control-label" for="shopSlug">{{shopSlug}}</label>
+	<div class="controls">
+		<input  class="m-wra" type="text" id="shopSlug" name="shopSlug" />
+	</div>
+</div>
+<div  class="control-group">
+	<label class="control-label" for="wholesaleRole">{{wholesaleRole}}</label>
+	<div class="controls">
+		<select class="input-large m-wrap" id="wholesaleRole"  name="wholesaleRole"></select>
+	</div>
+</div>
+<div class="form-actions">
+	<button class="btn btn-success" id="save"><i class="icon-save"></i>&nbsp;{{buttonSave}}</button>
+</div>
+

@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/maven-shop/!svn/ver/1244/branches/new-shop/admin/controllers
+END
+categories.php
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/maven-shop/!svn/ver/1231/branches/new-shop/admin/controllers/categories.php
+END
+shop-admin-controller.php
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/maven-shop/!svn/ver/808/branches/new-shop/admin/controllers/shop-admin-controller.php
+END
+index.php
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/maven-shop/!svn/ver/807/branches/new-shop/admin/controllers/index.php
+END
+settings.php
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/maven-shop/!svn/ver/1239/branches/new-shop/admin/controllers/settings.php
+END
+dashboard.php
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/maven-shop/!svn/ver/807/branches/new-shop/admin/controllers/dashboard.php
+END
+products.php
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/maven-shop/!svn/ver/1244/branches/new-shop/admin/controllers/products.php
+END

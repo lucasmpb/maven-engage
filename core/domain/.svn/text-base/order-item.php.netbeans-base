@@ -1,0 +1,38 @@
+<?php
+
+namespace MavenShop\Core\Domain;
+
+// Exit if accessed directly 
+if ( ! defined( 'ABSPATH' ) )
+	exit;
+
+class OrderItem extends \Maven\Core\Domain\OrderItem {
+	
+	public function __construct ( $pluginKey ) {
+		parent::__construct( $pluginKey );
+	}
+	
+	/**
+	 *
+	 * @var \MavenShop\Core\Domain\Product
+	 */
+	private $product;
+	
+	
+	/**
+	 * @serialized
+	 * @return \MavenShop\Core\Domain\Product
+	 */
+	public function getProduct() {
+		return $this->product;
+	}
+
+	/**
+	 * 
+	 * @param \MavenShop\Core\Domain\Product $event
+	 */
+	public function setProduct( \MavenShop\Core\Domain\Product $product ) {
+		$this->product = $product;
+	}
+	
+}

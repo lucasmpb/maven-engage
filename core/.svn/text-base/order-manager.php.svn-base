@@ -1,0 +1,45 @@
+<?php
+
+namespace MavenShop\Core;
+
+// Exit if accessed directly 
+if ( !defined( 'ABSPATH' ) )
+	exit;
+
+class OrderManager extends \Maven\Core\OrderManager {
+
+	private $registry;
+
+	public function __construct () {
+
+		$this->registry = \MavenShop\Settings\ShopRegistry::instance();
+		parent::__construct( $this->registry );
+	}
+
+	public function getAllOrders ( \Maven\Core\Domain\OrderStatus $status = NULL ) {
+		$filter = new \Maven\Core\Domain\OrderFilter();
+
+		$filter->setPluginKey( $this->registry->getPluginKey() );
+
+		if ( !is_null( $status ) ) {
+			$filter->setStatusID( $status->getId() );
+		}
+		//return $this->manager->getByPlugin( $this->registry->getPluginKey() );
+		return $this->getOrders( $filter );
+	}
+
+	public function getCompletedOrders () {
+		return $this->getAllOrders( OrderStatusManager::getCompletedStatus() );
+	}
+
+	public function getOrders ( \Maven\Core\Domain\OrderFilter $filter ) {
+
+
+		$filter->setPluginKey( $this->registry->getPluginKey() );
+
+		return parent::getOrders( $filter );
+	}
+
+	
+
+}

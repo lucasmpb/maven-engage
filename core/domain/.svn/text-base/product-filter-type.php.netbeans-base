@@ -1,0 +1,9 @@
+<?php
+
+namespace MavenShop\Core\Domain;
+
+class ProductFilterType {
+
+	const None = 'none';
+}
+

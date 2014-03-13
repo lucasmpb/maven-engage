@@ -1,0 +1,94 @@
+<?php
+
+namespace MavenShop\Core;
+
+class EntryPoint {
+
+	private static $entryPointVar = 'maven_shop_entrypoint';
+
+	public static function init() {
+
+		$registry = \MavenShop\Settings\DonationsRegistry::instance();
+
+		add_rewrite_rule( $registry->getEntryPointUrl() . '$', "index.php?" . self::$entryPointVar . "=1", 'top' );
+
+		add_rewrite_rule( $registry->getEntryPointCancelUrl() . '$', "index.php?" . self::$entryPointCancelVar . "=1", 'top' );
+
+		add_rewrite_rule( $registry->getEntryPointThanksUrl() . '$', "index.php?" . self::$entryPointThanksVar . "=1", 'top' );
+	}
+
+	public static function queryVars( $query_vars ) {
+
+		$query_vars[ ] = self::$entryPointVar;
+		$query_vars[ ] = self::$entryPointCancelVar;
+		$query_vars[ ] = self::$entryPointThanksVar;
+
+		return $query_vars;
+	}
+
+	public static function parseRequest( &$wp ) {
+
+		
+		// I know I'm asking twice, but it's for not creating unnessesary objects. 
+		if ( array_key_exists( self::$entryPointVar, $wp->query_vars ) || array_key_exists( self::$entryPointCancelVar, $wp->query_vars ) || array_key_exists( self::$entryPointThanksVar, $wp->query_vars ) ) {
+						
+			$donationManager = new \MavenShop\Core\DonationManager();
+			$registry = \MavenShop\Settings\DonationsRegistry::instance();
+			$gateway = \Maven\Gateways\GatewayFactory::getGateway( $registry );
+				
+			if ( array_key_exists( self::$entryPointVar, $wp->query_vars ) ) {
+
+
+//			return;
+				//$data = unserialize('a:36:{s:13:"address_state";s:2:"CA";s:8:"quantity";s:1:"1";s:6:"txn_id";s:9:"517787659";s:9:"last_name";s:5:"Smith";s:11:"mc_currency";s:3:"USD";s:12:"payer_status";s:8:"verified";s:14:"address_status";s:9:"confirmed";s:3:"tax";s:4:"2.02";s:7:"invoice";s:7:"abc1234";s:8:"shipping";s:4:"3.04";s:14:"address_street";s:15:"123, any street";s:11:"payer_email";s:23:"buyer@paypalsandbox.com";s:9:"mc_gross1";s:4:"9.34";s:9:"item_name";s:9:"something";s:10:"first_name";s:4:"John";s:8:"business";s:24:"seller@paypalsandbox.com";s:11:"verify_sign";s:56:"AiIsnXHNpKqjewmZwJwe.DMYq0hjA6vd0T9C514It4Ws60b3yIzN2cQL";s:8:"payer_id";s:13:"TESTBUYERID01";s:12:"payment_date";s:24:"11:56:19 20 May 2013 PDT";s:15:"address_country";s:13:"United States";s:14:"payment_status";s:9:"Completed";s:14:"receiver_email";s:24:"seller@paypalsandbox.com";s:12:"payment_type";s:7:"instant";s:11:"address_zip";s:5:"95131";s:12:"address_city";s:8:"San Jose";s:8:"mc_gross";s:5:"12.34";s:6:"mc_fee";s:4:"0.44";s:17:"residence_country";s:2:"US";s:20:"address_country_code";s:2:"US";s:14:"notify_version";s:3:"2.1";s:11:"receiver_id";s:24:"seller@paypalsandbox.com";s:8:"txn_type";s:10:"web_accept";s:6:"custom";s:6:"xyz123";s:11:"item_number";s:7:"AK-1234";s:12:"address_name";s:10:"John Smith";s:8:"test_ipn";s:1:"1";}');
+				
+				if ( !\Maven\Gateways\GatewayFactory::hasExternalProcessFeatures( $gateway ) || !$gateway->isExternalTransaction() )
+					return false;
+
+			
+				$gateway->executeExternalCall();
+
+				
+				// Lets update the donation record.
+				$donation = $donationManager->updateTransactionInfo( $gateway );
+				 
+				// We don't do anything here, since it was a notification from some gateway
+				
+			}
+			else if ( array_key_exists( self::$entryPointCancelVar, $wp->query_vars ) ) {
+
+				if ( ! $gateway->getInvoiceNumber() )
+					return;
+				
+				$gateway->executeExternalCall();
+				
+				$donation = $donationManager->cancelDonation( $gateway->getInvoiceNumber() );
+				
+				// Lets show the cancel page. 
+				wp_redirect( get_permalink( $donation->getForm()->getCancelPage() ) );
+				die();
+				
+				
+			} else if ( array_key_exists( self::$entryPointThanksVar, $wp->query_vars ) ) {
+				
+				if ( ! \Maven\Core\Request::current()->isPost() )
+					return;
+				
+				$gateway->executeExternalCall();
+				
+				$donation = $donationManager->get( $gateway->getInvoiceNumber() );
+				
+				if ( ! $donation )
+					throw new \Maven\Exceptions\NotFoundException('Donation wasn\'t found');
+				
+				// Lets show the cancel page. 
+				wp_redirect( get_permalink( $donation->getForm()->getThanksPage() )."?did=".$donation->getId() );
+				die();
+				
+			}
+		}
+
+		return;
+	}
+
+}

@@ -1,0 +1,116 @@
+<?php
+
+namespace MavenShop\Core;
+
+class ShopConfig {
+
+	const productTypeName = 'mvn_product';
+	const categoryTypeName = 'mvns_category' ;
+	const productTableName = 'mvns_products';
+	const productPricesTableName = 'mvns_products_prices';
+	const categoriesTableName= 'mvns_categories';
+	const productsCategoriesTableName= 'mvns_products_categories';
+	const productsProcesByRolesTableName = 'mvns_products_prices_roles';
+	
+	public static function init() {
+
+		add_action( 'init', array( __CLASS__, 'registerTypes' ) );
+
+	}
+
+
+	static function  registerTypes() {
+
+		$showInMenu = WP_DEBUG;
+		
+		$labels = array(
+			'name' => _x( 'Products', 'Post Type General Name', 'text_domain' ),
+			'singular_name' => _x( 'Product', 'Post Type Singular Name', 'text_domain' ),
+			'menu_name' => __( 'Products', 'text_domain' ),
+			'parent_item_colon' => __( 'Parent Product:', 'text_domain' ),
+			'all_items' => __( 'All Shop', 'text_domain' ),
+			'view_item' => __( 'View Product', 'text_domain' ),
+			'add_new_item' => __( 'Add New Product', 'text_domain' ),
+			'add_new' => __( 'New Product', 'text_domain' ),
+			'edit_item' => __( 'Edit Product', 'text_domain' ),
+			'update_item' => __( 'Update Product', 'text_domain' ),
+			'search_items' => __( 'Search products', 'text_domain' ),
+			'not_found' => __( 'No products found', 'text_domain' ),
+			'not_found_in_trash' => __( 'No products found in Trash', 'text_domain' ),
+		);
+
+		$registry = \MavenShop\Settings\ShopRegistry::instance();
+		//$prefix = $registry->getShopSlugPrefix();
+ 
+		$slug = $registry->getShopSlug();
+		
+//		if ( $prefix )
+//			$slug = "/medical-students/grassroots/merchandise"; //"{$prefix}/{$slug}";
+			
+		$args = array(
+			'label' => __( 'mvn_shop', 'text_domain' ),
+			'description' => __( 'Maven shops', 'text_domain' ),
+			'labels' => $labels,
+			'supports' => array( ),
+			//'taxonomies' => array( 'mvn_venue' ),
+			'hierarchical' => false,
+			'public' => true,
+			'show_ui' => true,
+			'show_in_menu' => $showInMenu,
+			'show_in_nav_menus' => true,
+			'show_in_admin_bar' => true,
+			'menu_position' => 5,
+			'menu_icon' => '',
+			'can_export' => true,
+			'has_archive' => true,
+			'exclude_from_search' => false,
+			'publicly_queryable' => true,
+			'capability_type' => 'post',
+			'rewrite' => array( 'slug' => $slug, 'with_front' => false )
+		);
+
+		register_post_type( self::productTypeName, $args );
+
+
+		
+		// Add category taxonomy. It's not hierarchical
+		$labels = array(
+			'name' => _x( 'Category', 'taxonomy general name' ),
+			'singular_name' => _x( 'Category', 'taxonomy singular name' ),
+			'search_items' => __( 'Search Categories' ),
+			'popular_items' => __( 'Popular Categories' ),
+			'all_items' => __( 'All Categories' ),
+			'parent_item' => null,
+			'parent_item_colon' => null,
+			'edit_item' => __( 'Edit Category' ),
+			'update_item' => __( 'Update Category' ),
+			'add_new_item' => __( 'Add New Category' ),
+			'new_item_name' => __( 'New Category Name' ),
+			'separate_items_with_commas' => __( 'Separate categories with commas' ),
+			'add_or_remove_items' => __( 'Add or remove categories' ),
+			'choose_from_most_used' => __( 'Choose from the most used categories' ),
+			'not_found' => __( 'No category found.' ),
+			'menu_name' => __( 'Categories' )
+		);
+
+		$args = array(
+			'hierarchical' => true,
+			'labels' => $labels,
+			'show_ui' => true,
+			'show_admin_column' => true,
+			'update_count_callback' => '_update_post_term_count',
+			'query_var' => true,
+			'rewrite' => array( 'slug' => 'product-category' )
+		);
+
+		register_taxonomy( self::categoryTypeName, self::productTypeName, $args );
+	}
+
+	public static function getProductCategorySlug(){
+		return 'product-category';
+	}
+}
+
+
+ShopConfig::init();
+ 

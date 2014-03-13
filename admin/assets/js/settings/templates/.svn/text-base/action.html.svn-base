@@ -1,0 +1,9 @@
+<li class="list-item">
+	<div class="item {{disabledClass}}">
+		<span class="name">{{name}}</span>
+		<div class="description">{{description}}</div>
+		<div class="toggle {{disabledClass}}">
+			<div class="toggle-thumb"></div>
+		</div>
+	</div>
+</li>

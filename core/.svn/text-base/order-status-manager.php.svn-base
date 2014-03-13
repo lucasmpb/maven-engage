@@ -1,0 +1,20 @@
+<?php
+
+namespace MavenShop\Core;
+
+// Exit if accessed directly 
+if ( ! defined( 'ABSPATH' ) ) exit;
+
+class OrderStatusManager extends \Maven\Core\OrderStatusManager{
+
+
+	private $registry;
+	
+	public function __construct( ) {
+
+		$this->registry = \MavenShop\Settings\ShopRegistry::instance();
+		parent::__construct( $this->registry );
+		
+	}
+}
+

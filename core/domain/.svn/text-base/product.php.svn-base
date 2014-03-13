@@ -1,0 +1,451 @@
+<?php
+
+namespace MavenShop\Core\Domain;
+
+class Product extends \Maven\Core\DomainObject {
+
+	private $description;
+	private $name;
+	private $featuredImage;
+	private $galleryImages = array();
+	private $summary;
+	private $feature;
+	private $price;
+	private $wholesalePrice;
+	private $salePrice;
+	private $salePriceFrom;
+	private $salePriceTo;
+	private $stockEnabled;
+	private $stock;
+	private $width;
+	private $lenght;
+	private $weight;
+	private $height;
+	private $reserved;
+	private $reservationPassword;
+	private $sku;
+	private $variationsEnabled;
+	private $unitOfMeasure;
+	private $unitOfMeasureWeight;
+
+	/**
+	 * It saves the price by role. It's just an array where key is the role, and value the price.
+	 * @var \MavenShop\Core\Domain\ProductRolePrice[] 
+	 */
+	private $pricesByRole;
+
+	/**
+	 *
+	 * @var \Maven\Core\Domain\Variation[] 
+	 */
+	private $variations;
+
+	/**
+	 *
+	 * This property it is not used to save a value, but to make toArray works, and fire getFeaturedImageUrl
+	 */
+	private $featuredImageUrl;
+	private $url;
+
+	/**
+	 * @collectionType: \MavenShop\Core\Domain\Category
+	 * @var \MavenShop\Core\Domain\Category[] 
+	 */
+	private $categories = array();
+
+	public function __construct ( $id = false ) {
+
+		parent::__construct( $id );
+
+		$rules = array(
+			'description' => \Maven\Core\SanitizationRule::TextWithHtml,
+			'name' => \Maven\Core\SanitizationRule::Text,
+			'featuredImage' => \Maven\Core\SanitizationRule::Integer,
+			'summary' => \Maven\Core\SanitizationRule::Text,
+			'feature' => \Maven\Core\SanitizationRule::Boolean,
+			'price' => \Maven\Core\SanitizationRule::Float,
+			'salePrice' => \Maven\Core\SanitizationRule::Float,
+			'salePriceFrom' => \Maven\Core\SanitizationRule::DateTime,
+			'salePriceTo' => \Maven\Core\SanitizationRule::DateTime,
+			'stockEnabled' => \Maven\Core\SanitizationRule::Boolean,
+			'stock' => \Maven\Core\SanitizationRule::Float,
+			'width' => \Maven\Core\SanitizationRule::Float,
+			'lenght' => \Maven\Core\SanitizationRule::Float,
+			'weight' => \Maven\Core\SanitizationRule::Float,
+			'variationsEnabled' => \Maven\Core\SanitizationRule::Boolean,
+			'unitOfMeasure' => \Maven\Core\SanitizationRule::Text,
+			'unitOfMeasureWeight' => \Maven\Core\SanitizationRule::Text
+		);
+
+		$this->setSanitizationRules( $rules );
+
+		$this->categories = array();
+		$this->variations = array();
+	}
+
+	public function getGalleryImages () {
+		return $this->galleryImages;
+	}
+
+	public function getGalleryImagesForDB () {
+		$ids = array();
+		foreach ( $this->galleryImages as $image ) {
+			$ids[] = $image[ 'id' ];
+		}
+		return implode( ',', $ids );
+	}
+
+	public function setGalleryImages ( $galleryImages ) {
+		if ( is_array( $galleryImages ) ) {
+			$this->galleryImages = $galleryImages;
+		} else {
+			//not an array, should be the first load from database
+			//TODO: We should add a validation here, if an attachment
+			// has been deleted, or maybe the url changed, etc
+			$ids = explode( ',', $galleryImages );
+			foreach ( $ids as $id ) {
+				if ( $id != '' ) {
+					$this->addGalleryImage( $id );
+				}
+			}
+		}
+	}
+
+	private function addGalleryImage ( $id ) {
+		//Get other properties of the image
+		$attachment = get_post( $id );
+
+		//If no attachment, the image maybe has been deleted or something, dont process
+		if ( $attachment ) {
+			$image = array();
+			//set image id and url
+			$image[ 'id' ] = $id;
+			$image[ 'url' ] = wp_get_attachment_url( $id );
+
+			$image[ 'caption' ] = $attachment->post_excerpt;
+			$image[ 'alt' ] = get_post_meta( $attachment->ID, '_wp_attachment_image_alt', true );
+			$image[ 'description' ] = $attachment->post_content;
+
+			$this->galleryImages[] = $image;
+		}
+	}
+
+	public function getDescription () {
+		return $this->description;
+	}
+
+	public function setDescription ( $description ) {
+		$this->description = $description;
+	}
+
+	public function getFeaturedImage () {
+		return $this->featuredImage;
+	}
+
+	public function setFeaturedImage ( $featuredImage ) {
+		$this->featuredImage = $featuredImage;
+	}
+
+	public function getName () {
+		return $this->name;
+	}
+
+	public function setName ( $name ) {
+		$this->name = $name;
+	}
+
+	public function getUrl () {
+		return $this->url;
+	}
+
+	public function setUrl ( $url ) {
+		$this->url = $url;
+	}
+
+	public function getSlug () {
+		return $this->url;
+	}
+
+	public function getFullUrl () {
+
+		return get_permalink( $this->getId() );
+	}
+
+	public function getFeaturedImageUrl () {
+
+		if ( $this->featuredImage ) {
+			return wp_get_attachment_url( $this->featuredImage );
+		}
+
+		return "";
+	}
+
+	public function getSummary () {
+		return $this->summary;
+	}
+
+	public function setSummary ( $summary ) {
+		$this->summary = $summary;
+	}
+
+	/**
+	 * Get  categories
+	 * @collectionType: \MavenShop\Core\Domain\Category
+	 * @return \MavenShop\Core\Domain\Category[] 
+	 */
+	public function getCategories () {
+		return $this->categories;
+	}
+
+	/**
+	 * 
+	 * @param type \MavenShop\Core\Domain\Category[] 
+	 */
+	public function setCategories ( $categories ) {
+		$this->categories = $categories;
+	}
+
+	/**
+	 * 
+	 * @param type \MavenShop\Core\Domain\Category
+	 */
+	public function addCategory ( \MavenShop\Core\Domain\Category $category ) {
+		$this->categories[] = $category;
+	}
+
+	public function hasCategories () {
+		if ( $this->categories && count( $this->categories ) > 0 ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public function sanitize () {
+
+		parent::sanitize();
+
+		foreach ( $this->categories as $category ) {
+			$category->sanitize();
+		}
+	}
+
+	public function isFeature () {
+		return $this->feature;
+	}
+
+	public function setFeature ( $feature ) {
+		$this->feature = $feature;
+	}
+
+	public function getPrice () {
+		return $this->price;
+	}
+
+	public function setPrice ( $price ) {
+		$this->price = $price;
+	}
+	
+	public function getWholesalePrice() {
+		return $this->wholesalePrice;
+	}
+
+	public function setWholesalePrice( $wholesalePrice ) {
+		$this->wholesalePrice = $wholesalePrice;
+	}
+
+	public function getSalePrice () {
+		return $this->salePrice;
+	}
+
+	public function setSalePrice ( $salePrice ) {
+		$this->salePrice = $salePrice;
+	}
+
+	public function getSalePriceFrom () {
+		return $this->salePriceFrom;
+	}
+
+	public function setSalePriceFrom ( $salePriceFrom ) {
+		$this->salePriceFrom = $salePriceFrom;
+	}
+
+	public function getSalePriceTo () {
+		return $this->salePriceTo;
+	}
+
+	public function setSalePriceTo ( $salePriceTo ) {
+		$this->salePriceTo = $salePriceTo;
+	}
+
+	public function isStockEnabled () {
+		return $this->stockEnabled;
+	}
+
+	public function setStockEnabled ( $stockEnabled ) {
+		$this->stockEnabled = $stockEnabled;
+	}
+
+	public function getStock () {
+		return $this->stock;
+	}
+
+	public function setStock ( $stock ) {
+		$this->stock = $stock;
+	}
+
+	public function getLenght () {
+		return $this->lenght;
+	}
+
+	public function setLenght ( $lenght ) {
+		$this->lenght = $lenght;
+	}
+
+	public function getWidth () {
+		return $this->width;
+	}
+
+	public function setWidth ( $width ) {
+		$this->width = $width;
+	}
+
+	public function getHeight () {
+		return $this->height;
+	}
+
+	public function setHeight ( $height ) {
+		$this->height = $height;
+	}
+
+	public function getWeight () {
+		return $this->weight;
+	}
+
+	public function setWeight ( $weight ) {
+		$this->weight = $weight;
+	}
+
+	public function isReserved () {
+		return $this->reserved;
+	}
+
+	public function setReserved ( $reserved ) {
+		$this->reserved = $reserved;
+	}
+
+	public function getReservationPassword () {
+		return $this->reservationPassword;
+	}
+
+	public function setReservationPassword ( $reservationPassword ) {
+		$this->reservationPassword = $reservationPassword;
+	}
+
+	public function getSku () {
+		return $this->sku;
+	}
+
+	public function setSku ( $sku ) {
+		$this->sku = $sku;
+	}
+
+	/**
+	 * @collectionType: \Maven\Core\Domain\Variation
+	 * @return \Maven\Core\Domain\Variation[]
+	 */
+	public function getVariations () {
+
+		// We check if it is enabled first
+		if ( !$this->isVariationsEnabled() ) {
+			return array();
+		}
+
+		return $this->variations;
+	}
+
+	/**
+	 * 
+	 * @param \Maven\Core\Domain\Variation[] $variations
+	 */
+	public function setVariations ( $variations ) {
+		$this->variations = $variations;
+	}
+
+	public function hasVariations () {
+		return $this->variations && count( $this->variations ) > 0;
+	}
+
+	public function isVariationsEnabled () {
+		return $this->variationsEnabled;
+	}
+
+	public function setVariationsEnabled ( $variationsEnabled ) {
+		$this->variationsEnabled = $variationsEnabled;
+	}
+
+	public function getUnitOfMeasure () {
+		return $this->unitOfMeasure;
+	}
+
+	public function setUnitOfMeasure ( $unitOfMeasure ) {
+		$this->unitOfMeasure = $unitOfMeasure;
+	}
+
+	public function getUnitOfMeasureWeight () {
+		return $this->unitOfMeasureWeight;
+	}
+
+	public function setUnitOfMeasureWeight ( $unitOfMeasureWeight ) {
+		$this->unitOfMeasureWeight = $unitOfMeasureWeight;
+	}
+
+	/**
+	 * Check if the product has prices
+	 * @return boolean
+	 */
+	public function hasPricesByRoles () {
+		return !\Maven\Core\Utils::isEmpty( $this->pricesByRole );
+	}
+
+	/**
+	 * Get price by role
+	 * @return \MavenShop\Core\Domain\ProductRolePrice[] 
+	 */
+	public function getPricesByRole () {
+		return $this->pricesByRole;
+	}
+
+	/**
+	 * Set prices by role
+	 * @param \MavenShop\Core\Domain\ProductRolePrice[] $pricesByRole
+	 */
+	public function setPricesByRole ( $pricesByRole ) {
+		$this->pricesByRole = $pricesByRole;
+	}
+
+	/**
+	 * 
+	 * @param string/array $roles
+	 * @return int
+	 */
+	public function getPriceByRole ( $role ) {
+
+		$this->pricesByRole = apply_filters( 'maven-shop/product/priceByRole', $this->pricesByRole, $this );
+
+		if ( is_array( $role ) ) {
+			foreach ( $role as $key ) {
+				if ( $this->hasPricesByRoles() && isset( $this->pricesByRole[ $key ] ) ) {
+					return $this->pricesByRole[ $role ]->getPrice();
+				}
+			}
+		} else {
+			if ( $this->hasPricesByRoles() && isset( $this->pricesByRole[ $role ] ) ) {
+				return $this->pricesByRole[ $role ]->getPrice();
+			}
+		}
+
+		return 0;
+	}
+
+}

@@ -1,0 +1,78 @@
+<?php
+
+namespace MavenShop\Core\Domain;
+
+class ProductFilter {
+
+	private $type = \MavenShop\Core\Domain\ProductFilterType::None;
+	private $useWpMethods = false;
+	private $text;
+	
+	//Product properties
+	private $description;
+	private $name;
+	private $category;
+	
+	public function getDescription() {
+		return $this->description;
+	}
+
+	public function setDescription( $description ) {
+		$this->description = $description;
+	}
+
+	public function getName() {
+		return $this->name;
+	}
+
+	public function setName( $name ) {
+		$this->name = $name;
+	}
+
+	
+	private function protectField( $field ){
+		
+		if ( ! ( $field instanceof \Maven\Core\MavenDateTime ) )
+			return esc_sql( sanitize_text_field( $field )) ;
+		
+		return $field;
+	}
+
+	
+	public function __construct() {
+		;
+	}
+
+	public function useWpMethods() {
+		return $this->useWpMethods;
+	}
+
+	public function setUseWpMethods( $useWpMethods ) {
+		$this->useWpMethods = $useWpMethods;
+	}
+
+	public function getType() {
+		return $this->type;
+	}
+
+	public function setType( $type ) {
+		$this->type = $type;
+	}
+
+	public function getText() {
+		return $this->text;
+	}
+
+	public function setText( $text ) {
+		$this->text = $text;
+	}
+
+	public function getCategory() {
+		return $this->category;
+	}
+
+	public function setCategory( $category ) {
+		$this->category = $category;
+	}
+}
+
