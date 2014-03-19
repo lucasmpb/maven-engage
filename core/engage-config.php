@@ -4,8 +4,9 @@ namespace MavenEngage\Core;
 
 class EngageConfig {
 
-	const objectTypeName = 'mvnse_object';
-	const objectTableName = 'mvnse_object';
+	const objectTypeName = 'mvneg_object';
+	const campaignTableName = 'mvneg_campaign';
+	const campaignScheduleTableName = 'mvneg_campaign_schedule';
 	
 	public static function init() {
 
