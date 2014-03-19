@@ -1,8 +1,0 @@
-<?php
-
-namespace MavenShop\Core;
-
-interface iSearchManager {
-	
-	function getProducts( \MavenShop\Core\Domain\ProductFilter $filter );
-}	
