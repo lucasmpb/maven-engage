@@ -72,6 +72,9 @@ $hookManager = $director->getHookManager( $registry );
 //Front\ShopFrontEnd::registerFrontEndHooks();
 
 //$hookManager->addInit( array( 'MavenShop\Front\ShopFrontEnd','init' ) );
+
+$hookManager->addInit( array( '\MavenEngage\Core\CampaignScheduleManager','init' ) );
+
 // Load admin scripts, if we are in the admin 
 if ( is_admin() ) {
 

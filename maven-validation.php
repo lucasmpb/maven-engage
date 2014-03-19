@@ -43,7 +43,7 @@ class MavenValidation {
 			<div id="welcome-panel" class="welcome-panel">
 				<div class="welcome-panel-content">
 					<h3>Welcome to Maven!</h3>
-					<p class="about-description">Remember, you need to have Maven plugin, in order to have Maven Donations</p>
+					<p class="about-description">Remember, you need to have Maven plugin, in order to have Maven Engage</p>
 <!--					<div class="welcome-panel-column-container">
 						<div class="welcome-panel-column">
 							<h4>Download / Activate Maven</h4>

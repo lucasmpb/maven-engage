@@ -19,7 +19,8 @@ class Installer {
 			  `schedule_unit` varchar(50) DEFAULT NULL,
 			  `subject` varchar(1024) DEFAULT NULL,
 			  `body` text,
-			  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,				
+			  `enabled` tinyint(4) NOT NULL DEFAULT '0',
+			  `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,				
 			  PRIMARY KEY (`id`)
 			)",
 		    "CREATE TABLE IF NOT EXISTS `mvneg_campaign_schedule` (
@@ -27,11 +28,25 @@ class Installer {
 			  `order_id` int(11) DEFAULT NULL,
 			  `campaign_id` int(11) DEFAULT NULL,
 			  `code` varchar(32) DEFAULT NULL,
-			  `scheduled_date` datetime DEFAULT NULL,
 			  `send_date` datetime DEFAULT NULL,
-			  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,					  
+			  `return_date` datetime DEFAULT NULL,
+			  `completed_date` datetime DEFAULT NULL,
+			  `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,					  
 			  PRIMARY KEY (`id`)
-			) "
+			) ",
+		    //DEFAULT CAMPAIGN
+		    "INSERT INTO `mvneg_campaign` (
+			`schedule_value` ,
+			`schedule_unit` ,
+			`subject` ,
+			`body` ,
+			`enabled` ,
+			`last_update`
+			)
+			VALUES (
+			'1',  'hours',  'You have a cart pending',  'You have a cart pending at [link]',  '1', 
+			CURRENT_TIMESTAMP
+			);"
 		);
 
 		foreach ( $create AS $sql ) {
@@ -56,7 +71,7 @@ class Installer {
 			if ( $wpdb->query( $sql ) === false )
 				return false;
 		}
-		
+
 		//Remove scheduled jobs
 		//CronJobs::removeCronJobs();
 	}
