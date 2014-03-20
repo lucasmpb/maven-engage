@@ -103,20 +103,23 @@ class CampaignMapper extends \Maven\Core\Db\WordpressMapper {
 		$campaign->sanitize();
 
 		$data = array(
-		    'schedule' => $campaign->getSchedule(),
+		    'schedule_value' => $campaign->getScheduleValue(),
+		    'schedule_unit' => $campaign->getScheduleUnit(),
 		    'subject' => $campaign->getSubject(),
-		    'body' => $campaign->getBody()
+		    'body' => $campaign->getBody(),
+		    'enabled' => $campaign->isEnabled() ? 1 : 0
 		);
 
 		$format = array(
-		    '%s', //schedule
+		    '%d', //schedule_value
+		    '%s', //schedule_unit
 		    '%s', //subject
-		    '%s' //body	    
+		    '%s', //body	   
+		    '%d' //enabled
 		);
 
 		if ( ! $campaign->getId() ) {
 			try {
-
 
 				$campaignId = $this->insert( $data, $format );
 			} catch ( \Exception $ex ) {

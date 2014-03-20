@@ -31,16 +31,16 @@ class CampaignScheduleMapper extends \Maven\Core\Db\WordpressMapper {
 
 		$results = $this->getQuery( $query );
 
-		$campaigns = array();
+		$schedules = array();
 
 		foreach ( $results as $row ) {
-			$campaign = new \MavenEngage\Core\Domain\Campaign();
-			$this->fillObject( $campaign, $row );
+			$schedule = new \MavenEngage\Core\Domain\CampaignSchedule();
+			$this->fillObject( $schedule, $row );
 
-			$campaigns[] = $campaign;
+			$schedules[] = $schedule;
 		}
 
-		return $campaigns;
+		return $schedules;
 	}
 
 	public function getCount() {
@@ -155,6 +155,28 @@ class CampaignScheduleMapper extends \Maven\Core\Db\WordpressMapper {
 
 	public function fill( $object, $row ) {
 		$this->fillObject( $object, $row );
+	}
+	
+	
+	/**
+	 * 
+	 * @return \MavenEngage\Core\Domain\CampaignSchedule[]
+	 */
+	public function getPendingSchedules(){
+		
+		$query="select cs.* from {$this->tableName} cs
+			WHERE send_date is NULL and completed_date is NULL";
+		
+		$schedules = array();
+
+		foreach ( $results as $row ) {
+			$schedule = new \MavenEngage\Core\Domain\CampaignSchedule();
+			$this->fillObject( $schedule, $row );
+
+			$schedules[] = $schedule;
+		}
+
+		return $schedules;
 	}
 
 }

@@ -105,10 +105,18 @@ class CampaignScheduleManager {
 
 		return $this->mapper->getCount();
 	}
+	
+	/**
+	 * 
+	 * @return Domain\CampaignSchedule[]
+	 */
+	public function getPendingSchedules(){
+		return $this->mapper->getPendingSchedules();
+	}
 
-	public function delete( $orderId ) {
+	public function delete( $campaignScheduleId ) {
 
-		$this->mapper->delete( $orderId );
+		$this->mapper->delete( $campaignScheduleId );
 
 		return true;
 	}

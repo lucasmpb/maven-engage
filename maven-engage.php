@@ -69,11 +69,17 @@ $director->createPluginElements( $registry );
 //Register actions and filters for external process in gateway
 $hookManager = $director->getHookManager( $registry );
 
+//Enable cron jobs
+Core\CronJobs::init();
+
+
 //Front\ShopFrontEnd::registerFrontEndHooks();
 
 //$hookManager->addInit( array( 'MavenShop\Front\ShopFrontEnd','init' ) );
 
 $hookManager->addInit( array( '\MavenEngage\Core\CampaignScheduleManager','init' ) );
+
+
 
 // Load admin scripts, if we are in the admin 
 if ( is_admin() ) {

@@ -59,5 +59,9 @@ class EngageRegistry extends \Maven\Settings\WordpressRegistry {
 
 		return ( isset( $actions[ $actionName ] ) );
 	}
+	
+	public function getRecoverOrderUrl(){
+		return "maven/engage/continue-order/";
+	}
 
 }

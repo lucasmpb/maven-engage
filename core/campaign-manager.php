@@ -9,6 +9,14 @@ if ( ! defined( 'ABSPATH' ) )
 class CampaignManager {
 
 	private $mapper;
+	private $mailVariables = array( 'first_name', 'last_name', 'link' );
+
+	/**
+	 *
+	 * @var \Maven\Core\Domain\Profile 
+	 */
+	private $currentProfile = null;
+	private $currentLink = null;
 
 	public function __construct() {
 
@@ -75,51 +83,147 @@ class CampaignManager {
 	}
 
 	/**
-	 * Send campaign email
-	 * @param int $orderId
-	 * @param int $campaignId
+	 * 
+	 * @param \Maven\Core\Domain\Order $order
+	 * @param \MavenEngage\Core\Domain\Campaign $campaign
+	 * @param \MavenEngage\Core\Domain\CampaignSchedule $schedule
 	 */
-	public function sendCampaignEmail( $orderId, $campaignId ) {
+	public function sendCampaignEmail( \Maven\Core\Domain\Order $order, Domain\Campaign $campaign, Domain\CampaignSchedule $schedule = NULL ) {
+		$campaignScheduleManager = new CampaignScheduleManager();
+		$engageRegistry = \MavenEngage\Settings\EngageRegistry::instance();
+		if ( ! $schedule ) {
+			$schedule = $campaignScheduleManager->getOrderSchedule( $order->getId(), $campaign->getId() );
+		}
 
-		$scheduleManager = new CampaignScheduleManager();
+		$email = false;
+		$profile = false;
+		if ( $order->hasUserInformation() && $order->getUser()->hasProfile() ) {
+			$profile = $order->getUser()->getProfile();
+			$email = $profile->getEmail();
+		}
+		//If we dont have an email, we look in the order contact
+		if ( ! $email && $order->hasContactInformation() ) {
+			$profile = $order->getContact();
+			$email = $profile->getEmail();
+		}
+		//Check Billing Contact
+		if ( ! $email && $order->hasBillingInformation() ) {
+			$profile = $order->getBillingContact();
+			$email = $profile->getEmail();
+		}
+		if ( ! $email && $order->hasShippingInformation() ) {
+			$profile = $order->getShippingContact();
+			$email = $profile->getEmail();
+		}
 
-		$orderManager = new \MavenShop\Core\OrderManager();
+		if ( $email ) {
+			//Now we send the email
+			$mavenSettings = \Maven\Settings\MavenRegistry::instance();
 
-		$order = $orderManager->get( $orderId );
+			$this->currentLink = $engageRegistry->getRecoverOrderUrl() . $schedule->getCode();
+			$this->currentProfile = $profile;
 
-		//Get schedule
-		$campaignSchedule = $scheduleManager->getOrderSchedule( $orderId, $campaignId );
+			$this->addVariables( $this->mailVariables );
 
-		if ( ! $campaignSchedule->getSendDate() ) {
+			$message = do_shortcode( $campaign->getBody() );
 
-			//send mail
-			
-			
-			//update schedule
-			$campaignSchedule->setSendDate('');
-			$scheduleManager->addCampaignSchedule($campaignSchedule);
+			$this->removeVariables( $this->mailVariables );
+
+			$mail = \Maven\Mail\MailFactory::build();
+
+			$mail->to( $email )
+				->message( $message )
+				->subject( $campaign->getSubject() )
+				->fromAccount( $mavenSettings->getSenderEmail() )
+				->fromMessage( $mavenSettings->getSenderName() )
+				->send();
+
+			//set the send_date
+			$date = new MavenDateTime();
+			$schedule->setSendDate( $date->mySqlFormatDateTime() );
+			$campaignScheduleManager->addCampaignSchedule( $schedule );
+		} else {
+			//We dont have a valid email address, delete the schedule
+			$campaignScheduleManager->delete( $schedule->getId() );
 		}
 	}
 
-	//This function will search for abandoned carts and add a schedule to send the corresponding email
+	function addVariables( $array ) {
+		foreach ( ( array ) $array as $shortcode ) {
+			add_shortcode( $shortcode, array( &$this, "processTemplate" ) );
+		}
+	}
+
+	function removeVariables( $array ) {
+		foreach ( ( array ) $array as $shortcode ) {
+			remove_shortcode( $shortcode );
+		}
+	}
+
+	function processTemplate( $atts, $content, $tag ) {
+
+		$profile = $this->currentProfile;
+
+		switch ( $tag ) {
+			case "first_name":
+				return $profile->getFirstName();
+				break;
+			case "last_name":
+				return $profile->getLastName();
+				break;
+			case "link":
+				return $this->currentLink;
+				break;
+			default:
+				return "";
+		}
+	}
+
+	//This function will...
 	public function prepareAbandonedCartEmail() {
 
-		//get Active Campaigns
-		$campaigns = $this->getAll();
+		$orderManager = new \Maven\Core\OrderManager();
+		//get Pending schedules
+		$campaignScheduleManager = new CampaignScheduleManager();
 
-		foreach ( $campaigns as $campaign ) {
-			$interval = $campaign->getScheduleString();
-			// Campaign Limit
-			$today = MavenDateTime::getWPCurrentDateTime();
+		$schedules = $campaignScheduleManager->getPendingSchedules();
 
-			$toDate = new \Maven\Core\MavenDateTime( $today );
-			$toDate->subFromIntervalString( $interval );
-			
-			//First Process Received Orders
-			
-			
-			
-			
+		foreach ( $schedules as $schedule ) {
+			//get campaign
+			$campaign = $this->get( $schedule->getCampaignId() );
+
+			if ( $campaign->isEnabled() ) {
+				//get Order
+				$order = $orderManager->get( $schedule->getOrderId() );
+
+				//Check if we have some email address to use
+				if ( ! $order->hasBillingInformation() &&
+					! $order->hasShippingInformation() &&
+					! $order->hasContactInformation() &&
+					! $order->hasUserInformation() ) {
+					//TODO: We dont have any contact information, delete the schedule
+					$campaignScheduleManager->delete( $schedule->getId() );
+				} else {
+
+					//Get order last update
+					$orderLastUpdate = new \Maven\Core\MavenDateTime( $order->getLastUpdate() );
+
+					$interval = $campaign->getScheduleString();
+					// Campaign Limit
+					$today = MavenDateTime::getWPCurrentDateTime();
+
+					$toDate = new \Maven\Core\MavenDateTime( $today );
+					$toDate->subFromIntervalString( $interval );
+
+					if ( $orderLastUpdate < $toDate ) {
+						//Schedule time has passed, send email
+						$this->sendCampaignEmail( $order, $campaign, $schedule );
+					}
+				}
+			} else {
+				//TODO: If disabled, maybe we should delete the schedule
+				$campaignScheduleManager->delete( $schedule->getId() );
+			}
 		}
 	}
 

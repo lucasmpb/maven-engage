@@ -8,8 +8,8 @@ if ( ! defined( 'ABSPATH' ) )
 
 class Campaign extends \Maven\Core\DomainObject {
 
-	private $schedule_value;
-	private $schedule_unit;
+	private $scheduleValue;
+	private $scheduleUnit;
 	private $subject;
 	private $body;
 	private $enabled;
@@ -19,8 +19,8 @@ class Campaign extends \Maven\Core\DomainObject {
 		parent::__construct( $id );
 
 		$rules = array(
-		    'schedule_value' => \Maven\Core\SanitizationRule::Integer,
-		    'schedule_unit' => \Maven\Core\SanitizationRule::Text,
+		    'scheduleValue' => \Maven\Core\SanitizationRule::Integer,
+		    'scheduleUnit' => \Maven\Core\SanitizationRule::Text,
 		    'subject' => \Maven\Core\SanitizationRule::Text,
 		    'body' => \Maven\Core\SanitizationRule::TextWithHtml,
 		    'enabled' => \Maven\Core\SanitizationRule::Boolean
@@ -29,32 +29,32 @@ class Campaign extends \Maven\Core\DomainObject {
 		$this->setSanitizationRules( $rules );
 	}
 
-	public function getSchedule_value() {
-		return $this->schedule_value;
+	public function getScheduleValue() {
+		return $this->scheduleValue;
 	}
 
-	public function getSchedule_unit() {
-		return $this->schedule_unit;
+	public function getScheduleUnit() {
+		return $this->scheduleUnit;
 	}
 
-	public function setSchedule_value( $schedule_value ) {
-		$this->schedule_value = $schedule_value;
+	public function setScheduleValue( $scheduleValue ) {
+		$this->scheduleValue = $scheduleValue;
 	}
 
-	public function setSchedule_unit( $schedule_unit ) {
-		$this->schedule_unit = $schedule_unit;
+	public function setScheduleUnit( $scheduleUnit ) {
+		$this->scheduleUnit = $scheduleUnit;
 	}
-	
-	public function getScheduleString(){
-		return "{$this->getSchedule_value()} {$this->getSchedule_unit()}";
+
+	public function getScheduleString() {
+		return "{$this->getScheduleValue()} {$this->getScheduleUnit()}";
 	}
 
 	public function getBody() {
 		return $this->body;
 	}
 
-	public function setSchedule( $schedule ) {
-		$this->schedule = $schedule;
+	public function getSubject() {
+		return $this->subject;
 	}
 
 	public function setSubject( $subject ) {
@@ -64,16 +64,16 @@ class Campaign extends \Maven\Core\DomainObject {
 	public function setBody( $body ) {
 		$this->body = $body;
 	}
-	
-	public function setEnabled($enabled){
+
+	public function setEnabled( $enabled ) {
 		if ( $enabled === 'false' || $enabled === false ) {
 			$this->enabled = FALSE;
 		} else {
 			$this->enabled = $enabled;
 		}
 	}
-	
-	public function isEnabled(){
+
+	public function isEnabled() {
 		return $this->enabled;
 	}
 
