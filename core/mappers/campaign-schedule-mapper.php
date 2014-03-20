@@ -165,7 +165,9 @@ class CampaignScheduleMapper extends \Maven\Core\Db\WordpressMapper {
 	public function getPendingSchedules(){
 		
 		$query="select cs.* from {$this->tableName} cs
-			WHERE send_date is NULL and completed_date is NULL";
+			WHERE send_date ='0000-00-00 00:00:00' and completed_date = '0000-00-00 00:00:00'";
+		
+		$results = $this->getQuery( $query );
 		
 		$schedules = array();
 
@@ -177,6 +179,16 @@ class CampaignScheduleMapper extends \Maven\Core\Db\WordpressMapper {
 		}
 
 		return $schedules;
+	}
+	
+	/**
+	 * 
+	 * @param int $id
+	 * @return void
+	 */
+	public function delete( $id ) {
+		//delete the address
+		return parent::delete( $id );
 	}
 
 }

@@ -73,7 +73,7 @@ class Installer {
 		}
 
 		//Remove scheduled jobs
-		//CronJobs::removeCronJobs();
+		CronJobs::removeCronJobs();
 	}
 
 }

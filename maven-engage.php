@@ -32,7 +32,7 @@ $registry->setPluginDirectoryName( "maven-engage" );
 $registry->setPluginDir( plugin_dir_path( __FILE__ ) );
 $registry->setPluginUrl( defined( 'DEV_ENV' ) && DEV_ENV ? WP_PLUGIN_URL . "/maven-engage/" : plugin_dir_url( __FILE__ )  );
 $registry->setPluginName( 'Maven Engage' );
-$registry->setPluginShortName( 'mse' );
+$registry->setPluginShortName( 'meg' );
 $registry->setPluginVersion( "0.1" );
 $registry->setRequest( new \Maven\Core\Request() );
 //$registry->setMail( new \Maven\Core\Mail() );

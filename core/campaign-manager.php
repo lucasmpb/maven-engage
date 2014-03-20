@@ -119,15 +119,17 @@ class CampaignManager {
 		if ( $email ) {
 			//Now we send the email
 			$mavenSettings = \Maven\Settings\MavenRegistry::instance();
+			$link = site_url( $engageRegistry->getRecoverOrderUrl() . $schedule->getCode() );
 
-			$this->currentLink = $engageRegistry->getRecoverOrderUrl() . $schedule->getCode();
-			$this->currentProfile = $profile;
+			$variables = array(
+			    'first_name' => $profile->getFirstName(),
+			    'last_name' => $profile->getLastName(),
+			    'link' => $link
+			);
 
-			$this->addVariables( $this->mailVariables );
+			$templateProcesor = new \Maven\Core\TemplateProcessor( $campaign->getBody(), $variables );
 
-			$message = do_shortcode( $campaign->getBody() );
-
-			$this->removeVariables( $this->mailVariables );
+			$message = $templateProcesor->getProcessedTemplate();
 
 			$mail = \Maven\Mail\MailFactory::build();
 
@@ -139,7 +141,7 @@ class CampaignManager {
 				->send();
 
 			//set the send_date
-			$date = new MavenDateTime();
+			$date = new \Maven\Core\MavenDateTime();
 			$schedule->setSendDate( $date->mySqlFormatDateTime() );
 			$campaignScheduleManager->addCampaignSchedule( $schedule );
 		} else {
@@ -148,38 +150,7 @@ class CampaignManager {
 		}
 	}
 
-	function addVariables( $array ) {
-		foreach ( ( array ) $array as $shortcode ) {
-			add_shortcode( $shortcode, array( &$this, "processTemplate" ) );
-		}
-	}
-
-	function removeVariables( $array ) {
-		foreach ( ( array ) $array as $shortcode ) {
-			remove_shortcode( $shortcode );
-		}
-	}
-
-	function processTemplate( $atts, $content, $tag ) {
-
-		$profile = $this->currentProfile;
-
-		switch ( $tag ) {
-			case "first_name":
-				return $profile->getFirstName();
-				break;
-			case "last_name":
-				return $profile->getLastName();
-				break;
-			case "link":
-				return $this->currentLink;
-				break;
-			default:
-				return "";
-		}
-	}
-
-	//This function will...
+	//This function will iterate over the pending shcedules, and send emails if the time has passed
 	public function prepareAbandonedCartEmail() {
 
 		$orderManager = new \Maven\Core\OrderManager();
@@ -201,21 +172,25 @@ class CampaignManager {
 					! $order->hasShippingInformation() &&
 					! $order->hasContactInformation() &&
 					! $order->hasUserInformation() ) {
+					
 					//TODO: We dont have any contact information, delete the schedule
-					$campaignScheduleManager->delete( $schedule->getId() );
+					//$campaignScheduleManager->delete( $schedule->getId() );
+					
+					//We cant delete de schedule here. Maybe the order has just been created.
+					
 				} else {
 
 					//Get order last update
-					$orderLastUpdate = new \Maven\Core\MavenDateTime( $order->getLastUpdate() );
+					$orderLastUpdate = new \Maven\Core\MavenDateTime( $orderManager->getOrderLastUpdate( $order->getId() ) );
 
 					$interval = $campaign->getScheduleString();
 					// Campaign Limit
-					$today = MavenDateTime::getWPCurrentDateTime();
+					$today = \Maven\Core\MavenDateTime::getWPCurrentDateTime();
 
-					$toDate = new \Maven\Core\MavenDateTime( $today );
-					$toDate->subFromIntervalString( $interval );
+					$limit = new \Maven\Core\MavenDateTime( $today );
+					$limit->subFromIntervalString( $interval );
 
-					if ( $orderLastUpdate < $toDate ) {
+					if ( $orderLastUpdate < $limit ) {
 						//Schedule time has passed, send email
 						$this->sendCampaignEmail( $order, $campaign, $schedule );
 					}

@@ -12,11 +12,17 @@ class CronJobs {
 		
 		$campaignManager = new CampaignManager();
 
-		add_action( 'wp', array( '\MavenEngage\Core\CronJobs', 'setupAbandonedCartsSchedule' ) );
+		\Maven\Core\HookManager::instance()->addWp( array( '\MavenEngage\Core\CronJobs', 'setupAbandonedCartsSchedule' ) );
 
-		add_action( 'maven-engage/campaigns/sendCampaign', array( $campaignManager, 'prepareAbandonedCartEmail' ) );
+		\Maven\Core\HookManager::instance()->addAction( 'maven-engage/campaigns/sendCampaign', array( $campaignManager, 'prepareAbandonedCartEmail' ) );
 
-		add_filter( 'cron_schedules', array( '\MavenEngage\Core\CronJobs', 'addScheduleInterval' ) );
+		\Maven\Core\HookManager::instance()->addFilter( 'cron_schedules', array( '\MavenEngage\Core\CronJobs', 'addScheduleInterval' ) );
+		
+		
+		//TODO: Figure out why the wo hook doesnt work. Then remove this lines.
+		if ( ! wp_next_scheduled( 'maven-engage/campaigns/sendCampaign' ) ) {
+			wp_schedule_event( time(), 'every5minutes', 'maven-engage/campaigns/sendCampaign' );
+		}
 	}
 
 	public static function setupAbandonedCartsSchedule() {
