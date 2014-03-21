@@ -60,6 +60,41 @@ class CampaignScheduleMapper extends \Maven\Core\Db\WordpressMapper {
 		return $this->getVar( $query );
 	}
 
+	public function getStatistics( \MavenEngage\Core\Domain\CampaignStatisticsFilter $filter ) {
+
+		$where = '';
+		$values = array();
+
+		$campaignId = $filter->getCampaignId();
+		if ( $campaignId ) {
+			$where.=" AND campaignId=%d";
+			$values[] = $campaignId;
+		}
+
+		$fromDate = $filter->getFromDate();
+		if ( $fromDate ) {
+			$where.=" AND date(send_date) >= %s";
+			$values[] = $fromDate;
+		}
+
+		$toDate = $filter->getToDate();
+		if ( $toDate ) {
+			$where.=" AND date(send_date) <= %s";
+			$values[] = $toDate;
+		}
+
+		$query = "SELECT count(*) as sent,
+			sum(IF(return_date='0000-00-00 00:00:00',0,1)) as recover,
+			sum(IF(completed_date='0000-00-00 00:00:00',0,1)) as completed
+			from {$this->tableName} WHERE 1=1 {$where}";
+
+		$query = $this->prepare( $query, $values );
+		
+		$stats = $this->getQuery( $query );
+
+		return $stats;
+	}
+
 	/**
 	 * Return a Campaign Schedule object
 	 * @param int $id

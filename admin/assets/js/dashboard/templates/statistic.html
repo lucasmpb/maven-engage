@@ -1,0 +1,69 @@
+<div class="row-fluid">
+	<div class="widget">
+		<div class="widget-title">
+			<h4><i class="icon-reorder"></i>
+				{{ titleEngage}}</h4>
+			<span class="tools">
+				<a href="javascript:void(0)" class="filter active"><i class="icon-cog"></i></a>				
+			</span>
+		</div>
+		<div class="filter-wrap">
+			<button class="btn" id="form-date-range">
+				<i class="icon-calendar"></i>
+				&nbsp;<span></span> 
+				<b class="caret"></b>
+			</button>&nbsp;
+		</div>
+		<div class="widget-body">
+
+
+			<div class="row-fluid stats-overview-cont">
+				<div data-desktop="span2" data-tablet="span4" class="span2 responsive">
+					<div class="stats-overview block clearfix">
+						<!--<div class="display stat ok huge">
+							<span class="line-chart" style="display: inline;"><span style="display: none;"><span style="display: none;"><span style="display: none;">5, 6, 7, 11, 14, 10, 15, 19, 15, 2</span><canvas width="50" height="20"></canvas></span><canvas width="50" height="20"></canvas></span><canvas width="40" height="20"></canvas></span>
+							<div class="percent">+66%</div>
+						</div>-->
+						<div class="details">
+							<div class="title">{{sent}}</div>
+							<div class="numbers" id="sent">0</div>
+						</div>
+						<!--<div class="progress progress-info">
+							<div style="width: 66%" class="bar"></div>
+						</div>-->
+					</div>
+				</div>
+				<div data-desktop="span2" data-tablet="span4" class="span2 responsive">
+					<div class="stats-overview block clearfix">
+						<!--<div class="display stat good huge">
+							<span class="line-chart" style="display: inline;"><span style="display: none;"><span style="display: none;"><span style="display: none;">2,6,8,12, 11, 15, 16, 11, 16, 11, 10, 3, 7, 8, 12, 19</span><canvas width="50" height="20"></canvas></span><canvas width="50" height="20"></canvas></span><canvas width="40" height="20"></canvas></span>
+							<div class="percent">+16%</div>
+						</div>-->
+						<div class="details">
+							<div class="title">{{recover}}</div>
+							<div class="numbers" id="recover">0</div>
+							<!--<div class="progress progress-warning">
+								<div style="width: 16%" class="bar"></div>
+							</div>-->
+						</div>
+					</div>
+				</div>
+				<div data-desktop="span2" data-tablet="span4" class="span2 responsive">
+					<div class="stats-overview block clearfix">
+						<!--<div class="display stat bad huge">
+							<span class="line-chart" style="display: inline;"><span style="display: none;"><span style="display: none;"><span style="display: none;">2,6,8,11, 14, 11, 12, 13, 15, 12, 9, 5, 11, 12, 15, 9,3</span><canvas width="50" height="20"></canvas></span><canvas width="50" height="20"></canvas></span><canvas width="40" height="20"></canvas></span>
+							<div class="percent">+6%</div>
+						</div>-->
+						<div class="details">
+							<div class="title">{{completed}}</div>
+							<div class="numbers" id="completed">0</div>
+							<!--<div class="progress progress-success">
+								<div style="width: 16%" class="bar"></div>
+							</div>-->
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

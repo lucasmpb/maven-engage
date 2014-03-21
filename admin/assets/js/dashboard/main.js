@@ -1,6 +1,9 @@
-
-require(['domReady','jquery','router'], function(domReady,$,Router){
+require(['domReady','app', 'jquery'], function(domReady,App, $){
 	domReady(function(){
-		Router.initialize();
+		var app = new App('#mainContainer');
 	});
 });
+
+
+
+

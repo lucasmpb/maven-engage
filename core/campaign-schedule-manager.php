@@ -156,6 +156,11 @@ class CampaignScheduleManager {
 		return $this->mapper->getCount();
 	}
 
+	
+	public function getStatistics( Domain\CampaignStatisticsFilter $filter ) {
+		return $this->mapper->getStatistics( $filter );
+	}
+	
 	/**
 	 * 
 	 * @return Domain\CampaignSchedule[]

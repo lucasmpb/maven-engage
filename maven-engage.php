@@ -105,7 +105,21 @@ if ( is_admin() ) {
 	$dashboard->addScriptResource( 'flot' );
 
 	$dashboard->addLocalizations( array(
-	    'titleEventsSignupChart' => 'Signups',
+	    'titleEngage' => 'Engage',
+	    'sent' => 'Emails Sent',
+	    'recover' => 'Returned Customers',
+	    'completed' => 'Completed Orders',
+	    'rangeLabel' => 'Custom Range',
+	    'rangeApplyLabel' => 'Select',
+	    'rangeFromLabel' => 'From',
+	    'rangeToLabel' => 'To',
+	    'noRange' => 'No Range Selected',
+	    'today' => 'Today',
+	    'yesterday' => 'Yesterday',
+	    'lastSevenDays' => 'Last 7 Days',
+	    'lastThirtyDays' => 'Last 30 Days',
+	    'thisMonth' => 'This Month',
+	    'lastMonth' => 'Last Month',
 	) );
 
 	/** Settings * */
