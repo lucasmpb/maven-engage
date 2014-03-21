@@ -51,10 +51,10 @@ class Installer {
 <strong>[organization_name]</strong> today:</p>
     <p>[items]</p>
 <p>We know that sometimes life can get a bit hectic, so we wanted to remind
-you it's still there.</p>
+you it''s still there.</p>
 
 <p>To complete everything, just click this link
-<a href='[link]'>[link]</a> and you'll be back on the path <strong>to
+<a href=''[link]''>[link]</a> and you''ll be back on the path <strong>to
 DNS & Email greatness!</strong>(?)</p>
 
 <p>Thanks,<br> [organization_signature]</p>',  '1', 

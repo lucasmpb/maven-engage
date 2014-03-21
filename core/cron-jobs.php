@@ -8,27 +8,26 @@ if ( ! defined( 'ABSPATH' ) )
 
 class CronJobs {
 
+	const SendCampaignHook = "maven-engage/campaigns/sendCampaign";
+	
 	public static function init() {
 		
 		$campaignManager = new CampaignManager();
 
 		\Maven\Core\HookManager::instance()->addWp( array( '\MavenEngage\Core\CronJobs', 'setupAbandonedCartsSchedule' ) );
 
-		\Maven\Core\HookManager::instance()->addAction( 'maven-engage/campaigns/sendCampaign', array( $campaignManager, 'prepareAbandonedCartEmail' ) );
+		\Maven\Core\HookManager::instance()->addAction( self::SendCampaignHook, array( $campaignManager, 'prepareAbandonedCartEmail' ) );
 
 		\Maven\Core\HookManager::instance()->addFilter( 'cron_schedules', array( '\MavenEngage\Core\CronJobs', 'addScheduleInterval' ) );
 		
 		
-		//TODO: Figure out why the wo hook doesnt work. Then remove this lines.
-		if ( ! wp_next_scheduled( 'maven-engage/campaigns/sendCampaign' ) ) {
-			wp_schedule_event( time(), 'every5minutes', 'maven-engage/campaigns/sendCampaign' );
-		}
+		
 	}
 
 	public static function setupAbandonedCartsSchedule() {
 		
-		if ( ! wp_next_scheduled( 'maven-engage/campaigns/sendCampaign' ) ) {
-			wp_schedule_event( time(), 'every5minutes', 'maven-engage/campaigns/sendCampaign' );
+		if ( ! wp_next_scheduled( self::SendCampaignHook ) ) {
+			wp_schedule_event( time(), 'every5minutes', self::SendCampaignHook );
 		}
 	}
 
@@ -43,9 +42,15 @@ class CronJobs {
 		return $schedules;
 	}
 
+	public static function setupCleanReceivedOrdersSchedule () {
+
+		if ( ! wp_next_scheduled( self::SendCampaignHook ) ) {
+			wp_schedule_event( time(), 'every5minutes', self::SendCampaignHook );
+		}
+	}
 	public static function removeCronJobs() {
 
-		wp_clear_scheduled_hook( 'maven-engage/campaigns/sendCampaign' );
+		wp_clear_scheduled_hook( self::SendCampaignHook );
 	}
 
 }
