@@ -118,9 +118,7 @@ if ( is_admin() ) {
 	    'tabActions' => 'Actions',
 	    'tabGeneral' => 'General',
 	    'buttonSave' => 'Save',
-	    'shopSlugPrefix' => 'Shop Slug Prefix',
-	    'shopSlug' => 'Shop Slug',
-	    'wholesaleRole' => 'Wholesale Role',
+	    'enabled' => 'Engage enabled',
 	    'emailNotificationsTo' => 'Send notifications to'
 	) );
 

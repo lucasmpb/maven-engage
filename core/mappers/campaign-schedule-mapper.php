@@ -11,9 +11,15 @@ class CampaignScheduleMapper extends \Maven\Core\Db\WordpressMapper {
 		parent::__construct( \MavenEngage\Core\EngageConfig::campaignScheduleTableName );
 	}
 
-	public function getAll( $orderBy = "id", $orderType = 'desc', $start = 0, $limit = 1000 ) {
+	public function getAll( \MavenEngage\Core\Domain\CampaignScheduleFilter $filter, $orderBy = "id", $orderType = 'desc', $start = 0, $limit = 1000 ) {
 		$where = '';
 		$values = array();
+
+		$orderId = $filter->getOrderId();
+		if ( $orderId ) {
+			$where.=" AND order_id = %d";
+			$values[] = $orderId;
+		}
 
 		if ( ! $orderBy )
 			$orderBy = 'id';

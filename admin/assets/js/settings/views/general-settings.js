@@ -1,4 +1,4 @@
-define(['text!templates/general-settings.html', 'localization', 'jquery', 'tagsInput']
+define(['text!templates/general-settings.html', 'localization', 'jquery', 'tagsInput', 'toggleButtons']
 	, function(GeneralSettingsTlt, localization, $) {
 
 		var GeneralSettingsView = Backbone.View.extend({
@@ -6,18 +6,8 @@ define(['text!templates/general-settings.html', 'localization', 'jquery', 'tagsI
 			template: _.template(GeneralSettingsTlt),
 			/* Bind controls to model attributes */
 			bindings: {
-				'#shopSlugPrefix': 'shopSlugPrefix',
-				'#shopSlug': 'shopSlug',
-				'#wholesaleRole': {
-					observe: "wholesaleRole",
-					selectOptions: {
-						collection: function() {
-							// Prepend null or undefined for an empty select option and value.
-							return CachedRoles;
-						}
-					}
-				},
-				'#emailNotificationsTo': 'emailNotificationsTo'
+				'#emailNotificationsTo': 'emailNotificationsTo',
+				'#enabled':'enabled'
 			},
 			events: {
 				'click #save': 'save'
@@ -28,13 +18,22 @@ define(['text!templates/general-settings.html', 'localization', 'jquery', 'tagsI
 
 			},
 			initialize: function(options) {
-
+				console.log(this.model);
 			},
 			render: function() {
 
 				this.$el.html(this.template(localization.toJSON()));
 
 				this.stickit();
+				
+				/*Important: First bind stickit, then apply toggleButton*/
+				this.$('.toggle-button').toggleButtons({
+					width: 100,
+					label: {
+						enabled: localization.get('yes'),
+						disabled: localization.get('no')
+					}
+				});
 
 				return this;
 
