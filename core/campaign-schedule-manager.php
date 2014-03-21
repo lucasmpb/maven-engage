@@ -22,6 +22,31 @@ class CampaignScheduleManager {
 		\Maven\Core\HookManager::instance()->addAction( 'maven/cart/newOrder', array( $campaignScheduleManager, 'registerNewOrder' ) );
 	}
 
+	public function recoverOrder( $code ) {
+
+		if ( $code ) {
+			$campaignSchedule = $this->mapper->getByCode( $code );
+
+			if ( $campaignSchedule ) {
+
+				//Recover order
+				$cart = \Maven\Core\Cart::current();
+
+				$cart->loadOrder( $campaignSchedule->getOrderId() );
+
+				//update return date
+				$date = new \Maven\Core\MavenDateTime();
+				$campaignSchedule->setReturnDate( $date->mySqlFormatDateTime() );
+
+				$this->addCampaignSchedule( $campaignSchedule );
+
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	/**
 	 * 
 	 * @param \MavenEngage\Core\Domain\CampaignSchedule $campaignSchedule
@@ -105,12 +130,12 @@ class CampaignScheduleManager {
 
 		return $this->mapper->getCount();
 	}
-	
+
 	/**
 	 * 
 	 * @return Domain\CampaignSchedule[]
 	 */
-	public function getPendingSchedules(){
+	public function getPendingSchedules() {
 		return $this->mapper->getPendingSchedules();
 	}
 

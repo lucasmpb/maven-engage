@@ -44,7 +44,20 @@ class Installer {
 			`last_update`
 			)
 			VALUES (
-			'1',  'hours',  'You have a cart pending',  'You have a cart pending at [link]',  '1', 
+			'1',  'hours',  'You forgot something in your Cart',
+			'<p>Dear [first_name] -</p>
+
+<p>We noticed that you forgot the following items in your shopping cart on
+<strong>[organization_name]</strong> today:</p>
+    <p>[items]</p>
+<p>We know that sometimes life can get a bit hectic, so we wanted to remind
+you it's still there.</p>
+
+<p>To complete everything, just click this link
+<a href='[link]'>[link]</a> and you'll be back on the path <strong>to
+DNS & Email greatness!</strong>(?)</p>
+
+<p>Thanks,<br> [organization_signature]</p>',  '1', 
 			CURRENT_TIMESTAMP
 			);"
 		);

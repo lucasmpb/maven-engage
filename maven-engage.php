@@ -69,6 +69,11 @@ $director->createPluginElements( $registry );
 //Register actions and filters for external process in gateway
 $hookManager = $director->getHookManager( $registry );
 
+// Set the engage handler hooks
+$hookManager->addInit( array( '\MavenEngage\Core\EngageHandler','init' ) );
+$hookManager->addQueryVarsFilter( array( '\MavenEngage\Core\EngageHandler','queryVars' ) );
+$hookManager->addParseRequest( array( '\MavenEngage\Core\EngageHandler','parseRequest' ) );
+
 //Enable cron jobs
 Core\CronJobs::init();
 

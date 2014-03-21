@@ -78,7 +78,24 @@ class CampaignScheduleMapper extends \Maven\Core\Db\WordpressMapper {
 		return $campaignSchedule;
 	}
 
-	
+	public function getByCode( $code ) {
+		if ( ! $code ) {
+			throw new \Maven\Exceptions\MissingParameterException( 'Code: is required' );
+		}
+
+		$campaignSchedule = new \MavenEngage\Core\Domain\CampaignSchedule();
+
+		$row = $this->getRowBy( 'code', $code );
+
+		if ( ! $row ) {
+			throw new \Maven\Exceptions\NotFoundException();
+		}
+
+		$this->fillObject( $campaignSchedule, $row );
+
+		return $campaignSchedule;
+	}
+
 	/**
 	 * 
 	 * @param int $orderId
@@ -156,19 +173,18 @@ class CampaignScheduleMapper extends \Maven\Core\Db\WordpressMapper {
 	public function fill( $object, $row ) {
 		$this->fillObject( $object, $row );
 	}
-	
-	
+
 	/**
 	 * 
 	 * @return \MavenEngage\Core\Domain\CampaignSchedule[]
 	 */
-	public function getPendingSchedules(){
-		
-		$query="select cs.* from {$this->tableName} cs
+	public function getPendingSchedules() {
+
+		$query = "select cs.* from {$this->tableName} cs
 			WHERE send_date ='0000-00-00 00:00:00' and completed_date = '0000-00-00 00:00:00'";
-		
+
 		$results = $this->getQuery( $query );
-		
+
 		$schedules = array();
 
 		foreach ( $results as $row ) {
@@ -180,7 +196,7 @@ class CampaignScheduleMapper extends \Maven\Core\Db\WordpressMapper {
 
 		return $schedules;
 	}
-	
+
 	/**
 	 * 
 	 * @param int $id

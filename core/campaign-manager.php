@@ -121,9 +121,18 @@ class CampaignManager {
 			$mavenSettings = \Maven\Settings\MavenRegistry::instance();
 			$link = site_url( $engageRegistry->getRecoverOrderUrl() . $schedule->getCode() );
 
+			$items = "";
+			foreach ( $order->getItems() as $item ) {
+				$items = $items . "<li>{$item->getName()}</li>";
+			}
+			$items = "<ul>{$items}</ul>";
+
 			$variables = array(
 			    'first_name' => $profile->getFirstName(),
 			    'last_name' => $profile->getLastName(),
+			    'items' => $items,
+			    'organization_name' => $mavenSettings->getOrganizationName(),
+			    'organization_signature' => $mavenSettings->getSignature(),
 			    'link' => $link
 			);
 
@@ -172,12 +181,10 @@ class CampaignManager {
 					! $order->hasShippingInformation() &&
 					! $order->hasContactInformation() &&
 					! $order->hasUserInformation() ) {
-					
+
 					//TODO: We dont have any contact information, delete the schedule
 					//$campaignScheduleManager->delete( $schedule->getId() );
-					
 					//We cant delete de schedule here. Maybe the order has just been created.
-					
 				} else {
 
 					//Get order last update
