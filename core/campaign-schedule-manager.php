@@ -20,6 +20,8 @@ class CampaignScheduleManager {
 		$campaignScheduleManager = new CampaignScheduleManager();
 
 		\Maven\Core\HookManager::instance()->addAction( 'maven/cart/newOrder', array( $campaignScheduleManager, 'registerNewOrder' ) );
+
+		\Maven\Core\HookManager::instance()->addAction( 'maven/order/completed', array( $campaignScheduleManager, 'registerCompletedOrder' ) );
 	}
 
 	public function recoverOrder( $code ) {
@@ -32,15 +34,26 @@ class CampaignScheduleManager {
 				//Recover order
 				$cart = \Maven\Core\Cart::current();
 
-				$cart->loadOrder( $campaignSchedule->getOrderId() );
+				$order = $cart->loadOrder( $campaignSchedule->getOrderId() );
 
-				//update return date
-				$date = new \Maven\Core\MavenDateTime();
-				$campaignSchedule->setReturnDate( $date->mySqlFormatDateTime() );
+				if ( $order ) {
+					//Add recovered state to order
+					$status = \Maven\Core\OrderStatusManager::getRecoveredStatus();
 
-				$this->addCampaignSchedule( $campaignSchedule );
+					$order->setStatus( $status );
 
-				return true;
+					$orderManager = new \Maven\Core\OrderManager();
+					$orderManager->addOrder( $order, true );
+
+					//update return date
+					$today = \Maven\Core\MavenDateTime::getWPCurrentDateTime();
+					$date = new \Maven\Core\MavenDateTime( $today );
+					$campaignSchedule->setReturnDate( $date->mySqlFormatDateTime() );
+
+					$this->addCampaignSchedule( $campaignSchedule );
+
+					return true;
+				}
 			}
 		}
 
@@ -70,20 +83,43 @@ class CampaignScheduleManager {
 
 	public function registerNewOrder( \Maven\Core\Domain\Order $order ) {
 
-		$campaignManager = new CampaignManager();
+		$engageSettings = \MavenEngage\Settings\EngageRegistry::instance();
 
-		//Get alla campaigns
-		$campaigns = $campaignManager->getAll();
+		if ( $engageSettings->isEngageEnabled() ) {
 
-		foreach ( $campaigns as $campaign ) {
-			$schedule = new Domain\CampaignSchedule();
+			$campaignManager = new CampaignManager();
 
-			$schedule->setCampaignId( $campaign->getId() );
-			$schedule->setOrderId( $order->getId() );
-			$schedule->setCode( wp_create_nonce() );
+			//Get all campaigns
+			$campaigns = $campaignManager->getAll();
 
-			//Schedule every campaign
-			$this->addCampaignSchedule( $schedule );
+			foreach ( $campaigns as $campaign ) {
+				$schedule = new Domain\CampaignSchedule();
+
+				$schedule->setCampaignId( $campaign->getId() );
+				$schedule->setOrderId( $order->getId() );
+				$schedule->setCode( wp_create_nonce() );
+
+				//Schedule every campaign
+				$this->addCampaignSchedule( $schedule );
+			}
+		}
+	}
+
+	public function registerCompletedOrder( \Maven\Core\Domain\Order $order ) {
+
+		$filter = new Domain\CampaignScheduleFilter();
+
+		$filter->setOrderId( $order->getId() );
+
+		//Get all schedules
+		$schedules = $this->getAll( $filter );
+		$today = \Maven\Core\MavenDateTime::getWPCurrentDateTime();
+		$completedDate = new \Maven\Core\MavenDateTime( $today );
+		foreach ( $schedules as $campaignSchedule ) {
+
+			$campaignSchedule->setCompletedDate( $completedDate->mySqlFormatDateTime() );
+			//Save every campaign
+			$this->addCampaignSchedule( $campaignSchedule );
 		}
 	}
 
@@ -121,7 +157,7 @@ class CampaignScheduleManager {
 	 * Get campaigns Schedule
 	 * @return \MavenEngage\Core\Domain\CampaignSchedule[]
 	 */
-	public function getAll( $orderBy = "id", $orderType = 'asc', $start = "0", $limit = "1000" ) {
+	public function getAll( Domain\CampaignScheduleFilter $filter, $orderBy = "id", $orderType = 'asc', $start = "0", $limit = "1000" ) {
 
 		return $this->mapper->getAll( $filter, $orderBy, $orderType, $start, $limit );
 	}
@@ -129,6 +165,14 @@ class CampaignScheduleManager {
 	public function getCount() {
 
 		return $this->mapper->getCount();
+	}
+
+	/**
+	 * 
+	 * @return Domain\CampaignStatistic[]
+	 */
+	public function getStatistics( Domain\CampaignStatisticsFilter $filter ) {
+		return $this->mapper->getStatistics( $filter );
 	}
 
 	/**

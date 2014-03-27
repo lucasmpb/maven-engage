@@ -15,7 +15,7 @@ class Settings extends \MavenEngage\Admin\Controllers\EngageAdminController {
 	public function showForm() {
 
 		$options = $this->getRegistry()->getOptions();
-		
+
 		$this->addJSONData( 'savedSettings', $options );
 
 		$this->addJSONData( 'actions', $this->getActions() );
@@ -131,20 +131,27 @@ class Settings extends \MavenEngage\Admin\Controllers\EngageAdminController {
 
 			$value = $optionToUpdate[ $option->getId() ];
 
-			switch ( $option->getId() ) {
-				default:break;
-			}
 
-			$option->setValue( $value );
+			switch ( $option->getType() ) {
+				case \Maven\Settings\OptionType::CheckBox:
+					if ( $value === 'false' || $value === false || $value === '' ) {
+						$option->setValue( FALSE );
+					} else {
+						$option->setValue( TRUE );
+					}
+					break;
+				default:$option->setValue( $value );
+					break;
+			}
 		}
 
 
 		$this->getRegistry()->saveOptions( $options );
 
-		if ( $flushUrls ){
-		//This is maybe the not best option to "flush" the urls, but it's the only I found without using any other hook
+		if ( $flushUrls ) {
+			//This is maybe the not best option to "flush" the urls, but it's the only I found without using any other hook
 			delete_option( 'rewrite_rules' );
-	}
+		}
 	}
 
 	public function showList() {

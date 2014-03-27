@@ -11,9 +11,15 @@ class CampaignScheduleMapper extends \Maven\Core\Db\WordpressMapper {
 		parent::__construct( \MavenEngage\Core\EngageConfig::campaignScheduleTableName );
 	}
 
-	public function getAll( $orderBy = "id", $orderType = 'desc', $start = 0, $limit = 1000 ) {
+	public function getAll( \MavenEngage\Core\Domain\CampaignScheduleFilter $filter, $orderBy = "id", $orderType = 'desc', $start = 0, $limit = 1000 ) {
 		$where = '';
 		$values = array();
+
+		$orderId = $filter->getOrderId();
+		if ( $orderId ) {
+			$where.=" AND order_id = %d";
+			$values[] = $orderId;
+		}
 
 		if ( ! $orderBy )
 			$orderBy = 'id';
@@ -52,6 +58,59 @@ class CampaignScheduleMapper extends \Maven\Core\Db\WordpressMapper {
 		$query = $this->prepare( $query );
 
 		return $this->getVar( $query );
+	}
+
+	
+	/**
+	 * 
+	 * 
+	 * @return Domain\CampaignStatistic[]
+	 */
+	public function getStatistics( \MavenEngage\Core\Domain\CampaignStatisticsFilter $filter ) {
+
+		$where = '';
+		$values = array();
+
+		$campaignId = $filter->getCampaignId();
+		if ( $campaignId ) {
+			$where.=" AND campaignId=%d";
+			$values[] = $campaignId;
+		}
+
+		$fromDate = $filter->getFromDate();
+		if ( $fromDate ) {
+			$where.=" AND date(send_date) >= %s";
+			$values[] = $fromDate;
+		}
+
+		$toDate = $filter->getToDate();
+		if ( $toDate ) {
+			$where.=" AND date(send_date) <= %s";
+			$values[] = $toDate;
+		}
+
+		$query = "SELECT count(*) as sent,
+			sum(IF(return_date='0000-00-00 00:00:00',0,1)) as recovered,
+			(sum(IF(return_date='0000-00-00 00:00:00',0,1)) / count(*)) * 100 as recovered_percent,
+			sum(IF(completed_date='0000-00-00 00:00:00',0,1)) as completed,
+			(sum(IF(completed_date='0000-00-00 00:00:00',0,1)) / count(*)) * 100 as completed_percent
+			from {$this->tableName} WHERE send_date != '0000-00-00 00:00:00'  {$where}";
+
+		$query = $this->prepare( $query, $values );
+
+		$results = $this->getQuery( $query );
+
+		$stats = array();
+
+		foreach ( $results as $row ) {
+			$stat = new \MavenEngage\Core\Domain\CampaignStatistic();
+			
+			$this->fill( $stat, $row );
+
+			$stats[] = $stat;
+		}
+
+		return $stats;
 	}
 
 	/**

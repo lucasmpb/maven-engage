@@ -16,11 +16,9 @@ class CronJobs {
 
 		\Maven\Core\HookManager::instance()->addWp( array( '\MavenEngage\Core\CronJobs', 'setupAbandonedCartsSchedule' ) );
 
-		\Maven\Core\HookManager::instance()->addAction( self::SendCampaignHook, array( $campaignManager, 'prepareAbandonedCartEmail' ) );
+		\Maven\Core\HookManager::instance()->addAction( self::SendCampaignHook, array( $campaignManager, 'checkCampaignsExpiration' ) );
 
 		\Maven\Core\HookManager::instance()->addFilter( 'cron_schedules', array( '\MavenEngage\Core\CronJobs', 'addScheduleInterval' ) );
-		
-		
 		
 	}
 
@@ -41,13 +39,7 @@ class CronJobs {
 
 		return $schedules;
 	}
-
-	public static function setupCleanReceivedOrdersSchedule () {
-
-		if ( ! wp_next_scheduled( self::SendCampaignHook ) ) {
-			wp_schedule_event( time(), 'every5minutes', self::SendCampaignHook );
-		}
-	}
+	
 	public static function removeCronJobs() {
 
 		wp_clear_scheduled_hook( self::SendCampaignHook );

@@ -48,7 +48,12 @@ class EngageHandler {
 			$result = $scheduleManager->recoverOrder( $code );
 
 			if ( $result ) {
-				wp_redirect( site_url() );
+				
+				$mavenSettings = \Maven\Settings\MavenRegistry::instance();
+				$redirect_url=site_url( $mavenSettings->getCartUrl() );
+				//var_dump($url);
+				
+				wp_redirect( $redirect_url );
 			} else
 				die( 'Invalid data' );
 		}

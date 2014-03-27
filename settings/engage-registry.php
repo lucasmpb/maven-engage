@@ -32,6 +32,9 @@ class EngageRegistry extends \Maven\Settings\WordpressRegistry {
 				    "emailNotificationsTo", "Send email notifications to", $adminEmail, ''
 			    ),
 			    new Option(
+				    "enabled", "Engage Enabled", true, '', \Maven\Settings\OptionType::CheckBox
+			    ),
+			    new Option(
 				    "actions", "Actions", array(), ''
 			    )
 			);
@@ -59,8 +62,12 @@ class EngageRegistry extends \Maven\Settings\WordpressRegistry {
 
 		return ( isset( $actions[ $actionName ] ) );
 	}
-	
-	public function getRecoverOrderUrl(){
+
+	public function isEngageEnabled() {
+		return $this->getValue('enabled');
+	}
+
+	public function getRecoverOrderUrl() {
 		return "maven/engage/continue-order/";
 	}
 

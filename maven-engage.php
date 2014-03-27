@@ -105,7 +105,21 @@ if ( is_admin() ) {
 	$dashboard->addScriptResource( 'flot' );
 
 	$dashboard->addLocalizations( array(
-	    'titleEventsSignupChart' => 'Signups',
+	    'titleEngage' => 'Engage',
+	    'sent' => 'Emails Sent',
+	    'recover' => 'Recovered Carts',
+	    'completed' => 'Completed Orders',
+	    'rangeLabel' => 'Custom Range',
+	    'rangeApplyLabel' => 'Select',
+	    'rangeFromLabel' => 'From',
+	    'rangeToLabel' => 'To',
+	    'noRange' => 'No Range Selected',
+	    'today' => 'Today',
+	    'yesterday' => 'Yesterday',
+	    'lastSevenDays' => 'Last 7 Days',
+	    'lastThirtyDays' => 'Last 30 Days',
+	    'thisMonth' => 'This Month',
+	    'lastMonth' => 'Last Month',
 	) );
 
 	/** Settings * */
@@ -118,9 +132,7 @@ if ( is_admin() ) {
 	    'tabActions' => 'Actions',
 	    'tabGeneral' => 'General',
 	    'buttonSave' => 'Save',
-	    'shopSlugPrefix' => 'Shop Slug Prefix',
-	    'shopSlug' => 'Shop Slug',
-	    'wholesaleRole' => 'Wholesale Role',
+	    'enabled' => 'Engage enabled',
 	    'emailNotificationsTo' => 'Send notifications to'
 	) );
 

@@ -12,8 +12,10 @@ define(['models/option', 'models/general-setting'], function(Option, GeneralSett
 			var gs = new GeneralSetting();
 
 			var emailNotificationsTo = this.get('emailNotificationsTo');
-			
+			var engageEnabled = this.get('enabled');
+
 			gs.set('emailNotificationsTo', emailNotificationsTo.get('value'));
+			gs.set('enabled', engageEnabled.get('value'));
 			gs.set('id', '1');
 
 			return gs;

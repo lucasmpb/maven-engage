@@ -54,8 +54,7 @@ class Installer {
 you it''s still there.</p>
 
 <p>To complete everything, just click this link
-<a href=''[link]''>[link]</a> and you''ll be back on the path <strong>to
-DNS & Email greatness!</strong>(?)</p>
+<a href=''[link]''>[link]</a> and you''ll be back on the path.
 
 <p>Thanks,<br> [organization_signature]</p>',  '1', 
 			CURRENT_TIMESTAMP

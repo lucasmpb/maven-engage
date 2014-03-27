@@ -6,6 +6,10 @@
 		text: "../text",
 		stickit: "empty:",
 		validation: "empty:",
+		pageable: "empty:",
+		backgrid: "empty:",
+		backgridPaginator: "empty:",
+		backgridFilter: "empty:",
 		dataTables: "empty:",
 		toggleButtons: "empty:",
 		dateJS: "empty:",
@@ -25,5 +29,3 @@
 	name: "main",
 	out: "main.min.js"
 })
-
-
