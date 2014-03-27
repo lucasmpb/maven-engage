@@ -163,8 +163,10 @@ class CampaignManager {
 		}
 	}
 
-	//This function will iterate over the pending shcedules, and send emails if the time has passed
-	public function prepareAbandonedCartEmail() {
+	//This function will iterate over the pending schedules, and send emails if the time has passed
+	public function checkCampaignsExpiration() {
+
+		\Maven\Loggers\Logger::log()->message( "Executing: ". __METHOD__ );
 
 		$engageSettings = \MavenEngage\Settings\EngageRegistry::instance();
 

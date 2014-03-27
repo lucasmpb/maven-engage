@@ -72,7 +72,7 @@ class CampaignScheduleManager {
 	}
 
 	public function registerNewOrder( \Maven\Core\Domain\Order $order ) {
-
+		
 		$engageSettings = \MavenEngage\Settings\EngageRegistry::instance();
 
 		if ( $engageSettings->isEngageEnabled() ) {
@@ -96,6 +96,7 @@ class CampaignScheduleManager {
 	}
 
 	public function registerCompletedOrder( \Maven\Core\Domain\Order $order ) {
+		
 		$filter = new Domain\CampaignScheduleFilter();
 
 		$filter->setOrderId( $order->getId() );
