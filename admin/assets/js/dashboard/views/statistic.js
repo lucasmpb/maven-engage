@@ -28,7 +28,37 @@ define(['jquery', 'localization', 'notifications', 'spinner', 'text!templates/st
 			bindings: {
 				'#sent': 'sent',
 				'#recover': 'recover',
-				'#completed': 'completed'
+				'#recoverPercent': {
+					observe: 'recoverPercent',
+					onGet: function(value) {
+						return Math.round(value) + '%';
+					}
+				},
+				'#recoverPercentBar': {
+					attributes: [{
+							name: 'style',
+							observe: 'recoverPercent',
+							onGet: function(value) {
+								return 'width: ' + Math.round(value) + '%;';
+							}
+						}]
+				},
+				'#completed': 'completed',
+				'#completedPercent': {
+					observe: "completedPercent",
+					onGet: function(value) {
+						return Math.round(value) + '%';
+					}
+				},
+				'#completedPercentBar': {
+					attributes: [{
+							name: 'style',
+							observe: 'completedPercent',
+							onGet: function(value) {
+								return 'width: ' + Math.round(value) + '%;';
+							}
+						}]
+				}
 			},
 			rangeChanged: function(range) {
 				if (range.start === null && range.end === null) {

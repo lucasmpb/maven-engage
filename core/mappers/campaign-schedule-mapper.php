@@ -85,7 +85,9 @@ class CampaignScheduleMapper extends \Maven\Core\Db\WordpressMapper {
 
 		$query = "SELECT count(*) as sent,
 			sum(IF(return_date='0000-00-00 00:00:00',0,1)) as recover,
-			sum(IF(completed_date='0000-00-00 00:00:00',0,1)) as completed
+			(sum(IF(return_date='0000-00-00 00:00:00',0,1)) / count(*)) * 100 as recoverPercent,
+			sum(IF(completed_date='0000-00-00 00:00:00',0,1)) as completed,
+			(sum(IF(completed_date='0000-00-00 00:00:00',0,1)) / count(*)) * 100 as completedPercent
 			from {$this->tableName} WHERE send_date != '0000-00-00 00:00:00'  {$where}";
 
 		$query = $this->prepare( $query, $values );

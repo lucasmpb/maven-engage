@@ -5,7 +5,9 @@ define([], function() {
 		defaults: {
 			sent: 0,
 			recover: 0,
-			completed: 0
+			completed: 0,
+			recoverPercent:0,
+			completedPercent:0
 
 		},
 		// Constructor
