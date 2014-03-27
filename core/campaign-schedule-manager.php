@@ -34,16 +34,26 @@ class CampaignScheduleManager {
 				//Recover order
 				$cart = \Maven\Core\Cart::current();
 
-				$cart->loadOrder( $campaignSchedule->getOrderId() );
+				$order = $cart->loadOrder( $campaignSchedule->getOrderId() );
 
-				//update return date
-				$today = \Maven\Core\MavenDateTime::getWPCurrentDateTime();
-				$date = new \Maven\Core\MavenDateTime( $today );
-				$campaignSchedule->setReturnDate( $date->mySqlFormatDateTime() );
+				if ( $order ) {
+					//Add recovered state to order
+					$status = \Maven\Core\OrderStatusManager::getRecoveredStatus();
 
-				$this->addCampaignSchedule( $campaignSchedule );
+					$order->setStatus( $status );
 
-				return true;
+					$orderManager = new \Maven\Core\OrderManager();
+					$orderManager->addOrder( $order, true );
+
+					//update return date
+					$today = \Maven\Core\MavenDateTime::getWPCurrentDateTime();
+					$date = new \Maven\Core\MavenDateTime( $today );
+					$campaignSchedule->setReturnDate( $date->mySqlFormatDateTime() );
+
+					$this->addCampaignSchedule( $campaignSchedule );
+
+					return true;
+				}
 			}
 		}
 
@@ -72,7 +82,7 @@ class CampaignScheduleManager {
 	}
 
 	public function registerNewOrder( \Maven\Core\Domain\Order $order ) {
-		
+
 		$engageSettings = \MavenEngage\Settings\EngageRegistry::instance();
 
 		if ( $engageSettings->isEngageEnabled() ) {
@@ -96,7 +106,7 @@ class CampaignScheduleManager {
 	}
 
 	public function registerCompletedOrder( \Maven\Core\Domain\Order $order ) {
-		
+
 		$filter = new Domain\CampaignScheduleFilter();
 
 		$filter->setOrderId( $order->getId() );
@@ -106,7 +116,7 @@ class CampaignScheduleManager {
 		$today = \Maven\Core\MavenDateTime::getWPCurrentDateTime();
 		$completedDate = new \Maven\Core\MavenDateTime( $today );
 		foreach ( $schedules as $campaignSchedule ) {
-			
+
 			$campaignSchedule->setCompletedDate( $completedDate->mySqlFormatDateTime() );
 			//Save every campaign
 			$this->addCampaignSchedule( $campaignSchedule );
@@ -157,7 +167,6 @@ class CampaignScheduleManager {
 		return $this->mapper->getCount();
 	}
 
-	
 	/**
 	 * 
 	 * @return Domain\CampaignStatistic[]
@@ -165,7 +174,7 @@ class CampaignScheduleManager {
 	public function getStatistics( Domain\CampaignStatisticsFilter $filter ) {
 		return $this->mapper->getStatistics( $filter );
 	}
-	
+
 	/**
 	 * 
 	 * @return Domain\CampaignSchedule[]
