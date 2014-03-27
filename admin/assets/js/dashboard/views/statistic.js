@@ -27,17 +27,17 @@ define(['jquery', 'localization', 'notifications', 'spinner', 'text!templates/st
 			},
 			bindings: {
 				'#sent': 'sent',
-				'#recover': 'recover',
-				'#recoverPercent': {
-					observe: 'recoverPercent',
+				'#recovered': 'recovered',
+				'#recoveredPercent': {
+					observe: 'recoveredPercent',
 					onGet: function(value) {
 						return Math.round(value) + '%';
 					}
 				},
-				'#recoverPercentBar': {
+				'#recoveredPercentBar': {
 					attributes: [{
 							name: 'style',
-							observe: 'recoverPercent',
+							observe: 'recoveredPercent',
 							onGet: function(value) {
 								return 'width: ' + Math.round(value) + '%;';
 							}

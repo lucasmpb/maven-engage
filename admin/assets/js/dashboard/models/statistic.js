@@ -4,9 +4,9 @@ define([], function() {
 		action: 'entryPoint',
 		defaults: {
 			sent: 0,
-			recover: 0,
+			recovered: 0,
 			completed: 0,
-			recoverPercent:0,
+			recoveredPercent:0,
 			completedPercent:0
 
 		},

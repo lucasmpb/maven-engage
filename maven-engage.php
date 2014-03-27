@@ -107,7 +107,7 @@ if ( is_admin() ) {
 	$dashboard->addLocalizations( array(
 	    'titleEngage' => 'Engage',
 	    'sent' => 'Emails Sent',
-	    'recover' => 'Returned Customers',
+	    'recover' => 'Recovered Carts',
 	    'completed' => 'Completed Orders',
 	    'rangeLabel' => 'Custom Range',
 	    'rangeApplyLabel' => 'Select',

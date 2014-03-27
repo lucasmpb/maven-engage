@@ -2,45 +2,45 @@
 
 namespace MavenEngage\Core;
 
-
 // Exit if accessed directly 
-if ( ! defined( 'ABSPATH' ) ) exit;
-
+if ( ! defined( 'ABSPATH' ) )
+	exit;
 
 class IntelligenceReport {
 
-	public static function generateData( $data, $lastRun ){
-		
-		/*$table = new \Maven\Core\Domain\IntelligenceReport\Table();
-		
-		$table->setTitle( 'Event Cart Activity');
-		
-		$table->addColumn( "# of Carts" );
-		$table->addColumn( "# of Carts Received" );
-		$table->addColumn( "# of Carts Completed" );
-		$table->addColumn( "# of Carts with Error" );
-		
-		$orderManager = new OrderManager();
-		
-		$countTotal = $orderManager->getCount('total');
-		$countError = $orderManager->getCount('error');
-		$countCompleted = $orderManager->getCount('completed');
-		$countReceived = $orderManager->getCount('received');
-		
-		$table->addRow( array( $countTotal, $countReceived, $countCompleted, $countError) );
-		
-		
+	public static function generateData( $data, $lastRun ) {
+
+		$table = new \Maven\Core\Domain\IntelligenceReport\Table();
+
+		$table->setTitle( 'Engage Activity' );
+
+		$table->addColumn( "# of Emails Sent" );
+		$table->addColumn( "# of Recovered Carts" );
+		$table->addColumn( "# of Completed Carts" );
+
+		$campaignScheduleManager = new CampaignScheduleManager();
+		$filter = new Domain\CampaignStatisticsFilter();
+		//TODO: Should we send only data from $lastRun?
+		//$filter->setFromDate($lastRun);
+
+		$stats = $campaignScheduleManager->getStatistics( $filter );
+
+		$countSent = $stats[ 0 ]->getSent();
+		$countRecovered = $stats[ 0 ]->getRecovered();
+		$countCompleted = $stats[ 0 ]->getCompleted();
+
+		$table->addRow( array( $countSent, $countRecovered, $countCompleted ) );
+
 		$data[] = $table;
-		
-		
+
 		$gGraph = new \Maven\Core\Domain\IntelligenceReport\GoogleGraph();
-		$gGraph->setTitle( 'Sales' );
-		$gGraph->setUrl("http://chart.googleapis.com/chart?chs=300x225&cht=p&chco=00A2FF|80C65A|FF0000&chd=t:{$countReceived},{$countCompleted},{$countError}&chdl=Received|Completed|Error");
-		
-		
+		$gGraph->setTitle( 'Engage Chart' );
+		$gGraph->setUrl( "http://chart.googleapis.com/chart?chs=300x225&cht=p&chco=00A2FF|80C65A|FF0000&chd=t:{$countSent},{$countRecovered},{$countCompleted}&chdl=Sent|Recovered|Completed" );
+
+
 		$data[] = $gGraph;
-		
-		return $data;*/
-		
+
+		return $data;
 	}
+
 }
