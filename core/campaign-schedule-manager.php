@@ -82,7 +82,8 @@ class CampaignScheduleManager {
 	}
 
 	public function registerNewOrder( \Maven\Core\Domain\Order $order ) {
-
+		\Maven\Loggers\Logger::log()->message(__METHOD__);
+		
 		$engageSettings = \MavenEngage\Settings\EngageRegistry::instance();
 
 		if ( $engageSettings->isEngageEnabled() ) {

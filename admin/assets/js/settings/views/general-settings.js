@@ -7,7 +7,13 @@ define(['text!templates/general-settings.html', 'localization', 'jquery', 'tagsI
 			/* Bind controls to model attributes */
 			bindings: {
 				'#emailNotificationsTo': 'emailNotificationsTo',
-				'#enabled':'enabled'
+				'#enabled': {
+					observe: 'enabled',
+					onSet: function(value, options) {
+						var val = this.$('#enabled').is(':checked');
+						return val;
+					}
+				}
 			},
 			events: {
 				'click #save': 'save'
@@ -18,14 +24,14 @@ define(['text!templates/general-settings.html', 'localization', 'jquery', 'tagsI
 
 			},
 			initialize: function(options) {
-				console.log(this.model);
+				//console.log(this.model);
 			},
 			render: function() {
 
 				this.$el.html(this.template(localization.toJSON()));
 
 				this.stickit();
-				
+
 				/*Important: First bind stickit, then apply toggleButton*/
 				this.$('.toggle-button').toggleButtons({
 					width: 100,
