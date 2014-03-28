@@ -64,27 +64,24 @@ $director->createPluginElements( $registry );
 
 // We need to initialize the custom post types
 //Core\ShopConfig::init();
-
-
 //Register actions and filters for external process in gateway
 $hookManager = $director->getHookManager( $registry );
 
 // Set the engage handler hooks
-$hookManager->addInit( array( '\MavenEngage\Core\EngageHandler','init' ) );
-$hookManager->addQueryVarsFilter( array( '\MavenEngage\Core\EngageHandler','queryVars' ) );
-$hookManager->addParseRequest( array( '\MavenEngage\Core\EngageHandler','parseRequest' ) );
+$hookManager->addInit( array( '\MavenEngage\Core\EngageHandler', 'init' ) );
+$hookManager->addQueryVarsFilter( array( '\MavenEngage\Core\EngageHandler', 'queryVars' ) );
+$hookManager->addParseRequest( array( '\MavenEngage\Core\EngageHandler', 'parseRequest' ) );
 
 //Enable cron jobs
 Core\CronJobs::init();
 
 
 //Front\ShopFrontEnd::registerFrontEndHooks();
-
 //$hookManager->addInit( array( 'MavenShop\Front\ShopFrontEnd','init' ) );
 
-$hookManager->addInit( array( '\MavenEngage\Core\CampaignScheduleManager','init' ) );
+$hookManager->addInit( array( '\MavenEngage\Core\CampaignScheduleManager', 'init' ) );
 
-
+$hookManager->addFilter( 'maven\core\intelligenceReport:data', array( 'MavenEngage\\Core\\IntelligenceReport', 'generateData' ), 10, 2 );
 
 // Load admin scripts, if we are in the admin 
 if ( is_admin() ) {
@@ -136,7 +133,7 @@ if ( is_admin() ) {
 	    'emailNotificationsTo' => 'Send notifications to'
 	) );
 
-/** Register the menues * */
+	/** Register the menues * */
 	$menuManager = $director->getMenuManager( $registry );
 
 	$menuManager->registerMenu( $dashboard, 'Maven Engage', $registry->getAssetsUrl() . "images/icon.png" );
