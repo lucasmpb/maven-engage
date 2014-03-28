@@ -76,14 +76,12 @@ class CampaignScheduleManager {
 			$campaignScheduleToUpdate = $campaignSchedule;
 		}
 
-		$mapper = new Mappers\CampaignScheduleMapper();
-
-		return $mapper->save( $campaignScheduleToUpdate );
+		return $this->mapper->save( $campaignScheduleToUpdate );
 	}
 
 	public function registerNewOrder( \Maven\Core\Domain\Order $order ) {
-		\Maven\Loggers\Logger::log()->message(__METHOD__);
-		
+		\Maven\Loggers\Logger::log()->message( __METHOD__ );
+
 		$engageSettings = \MavenEngage\Settings\EngageRegistry::instance();
 
 		if ( $engageSettings->isEngageEnabled() ) {
@@ -98,7 +96,8 @@ class CampaignScheduleManager {
 
 				$schedule->setCampaignId( $campaign->getId() );
 				$schedule->setOrderId( $order->getId() );
-				$schedule->setCode( wp_create_nonce() );
+				$nonce = \wp_create_nonce( "order-{$order->getId()}" );
+				$schedule->setCode( $nonce );
 
 				//Schedule every campaign
 				$this->addCampaignSchedule( $schedule );
