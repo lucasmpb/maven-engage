@@ -60,7 +60,6 @@ class CampaignScheduleMapper extends \Maven\Core\Db\WordpressMapper {
 		return $this->getVar( $query );
 	}
 
-	
 	/**
 	 * 
 	 * 
@@ -104,7 +103,7 @@ class CampaignScheduleMapper extends \Maven\Core\Db\WordpressMapper {
 
 		foreach ( $results as $row ) {
 			$stat = new \MavenEngage\Core\Domain\CampaignStatistic();
-			
+
 			$this->fill( $stat, $row );
 
 			$stats[] = $stat;
@@ -142,13 +141,17 @@ class CampaignScheduleMapper extends \Maven\Core\Db\WordpressMapper {
 			throw new \Maven\Exceptions\MissingParameterException( 'Code: is required' );
 		}
 
+		\Maven\Loggers\Logger::log()->message( __METHOD__ . ":{$code}" );
+
 		$campaignSchedule = new \MavenEngage\Core\Domain\CampaignSchedule();
 
-		$row = $this->getRowBy( 'code', $code );
+		$row = $this->getRowBy( 'code', $code, '%s' );
 
 		if ( ! $row ) {
 			throw new \Maven\Exceptions\NotFoundException();
 		}
+
+		\Maven\Loggers\Logger::log()->message( $row->code );
 
 		$this->fillObject( $campaignSchedule, $row );
 
