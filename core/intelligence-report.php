@@ -10,6 +10,8 @@ class IntelligenceReport {
 
 	public static function generateData( $data, $lastRun ) {
 
+		\Maven\Loggers\Logger::log()->message( 'MavenEngage/IntelligenceReport/generateData' );
+		
 		$table = new \Maven\Core\Domain\IntelligenceReport\Table();
 
 		$table->setTitle( 'Engage Activity' );
