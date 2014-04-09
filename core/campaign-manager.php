@@ -178,35 +178,42 @@ class CampaignManager {
 				$campaign = $this->get( $schedule->getCampaignId() );
 
 				if ( $campaign->isEnabled() ) {
-					//get Order
-					$order = $orderManager->get( $schedule->getOrderId() );
+					//check order
+
+					if ( $orderManager->orderExists( $schedule->getOrderId() ) ) {
+						//get Order
+						$order = $orderManager->get( $schedule->getOrderId() );
 
 
-					//Check if we have some email address to use
-					if ( ! $order->hasBillingInformation() &&
-						! $order->hasShippingInformation() &&
-						! $order->hasContactInformation() &&
-						! $order->hasUserInformation() ) {
+						//Check if we have some email address to use
+						if ( ! $order->hasBillingInformation() &&
+							! $order->hasShippingInformation() &&
+							! $order->hasContactInformation() &&
+							! $order->hasUserInformation() ) {
 
-						//TODO: We dont have any contact information, delete the schedule
-						//$campaignScheduleManager->delete( $schedule->getId() );
-						//We cant delete de schedule here. Maybe the order has just been created.
-					} else {
+							//TODO: We dont have any contact information, delete the schedule
+							//$campaignScheduleManager->delete( $schedule->getId() );
+							//We cant delete de schedule here. Maybe the order has just been created.
+						} else {
 
-						//Get order last update
-						$orderLastUpdate = new \Maven\Core\MavenDateTime( $orderManager->getOrderLastUpdate( $order->getId() ) );
+							//Get order last update
+							$orderLastUpdate = new \Maven\Core\MavenDateTime( $orderManager->getOrderLastUpdate( $order->getId() ) );
 
-						$interval = $campaign->getScheduleString();
-						// Campaign Limit
-						$today = \Maven\Core\MavenDateTime::getWPCurrentDateTime();
+							$interval = $campaign->getScheduleString();
+							// Campaign Limit
+							$today = \Maven\Core\MavenDateTime::getWPCurrentDateTime();
 
-						$limit = new \Maven\Core\MavenDateTime( $today );
-						$limit->subFromIntervalString( $interval );
-						\Maven\Loggers\Logger::log()->message( "Comparing order-{$order->getId()}:{$orderLastUpdate} and {$limit} " );
-						if ( $orderLastUpdate < $limit ) {
-							//Schedule time has passed, send email
-							$this->sendCampaignEmail( $order, $campaign, $schedule );
+							$limit = new \Maven\Core\MavenDateTime( $today );
+							$limit->subFromIntervalString( $interval );
+							\Maven\Loggers\Logger::log()->message( "Comparing order-{$order->getId()}:{$orderLastUpdate} and {$limit} " );
+							if ( $orderLastUpdate < $limit ) {
+								//Schedule time has passed, send email
+								$this->sendCampaignEmail( $order, $campaign, $schedule );
+							}
 						}
+					} else {
+						//The order have been deleted, we should delete the schedule
+						$campaignScheduleManager->delete( $schedule->getId() );
 					}
 				} else {
 					//TODO: If disabled, maybe we should delete the schedule
