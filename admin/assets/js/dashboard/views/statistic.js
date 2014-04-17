@@ -9,7 +9,7 @@ define(['jquery', 'localization', 'notifications', 'spinner', 'text!templates/st
 			startDate: null,
 			endDate: null,
 			initialize: function(options) {
-				_.bindAll(this);
+				//_.bindAll(this);
 
 				this.startDate = options.fromDate;
 				this.endDate = options.toDate;
@@ -19,7 +19,7 @@ define(['jquery', 'localization', 'notifications', 'spinner', 'text!templates/st
 				}
 
 				//Bind rangepicker change event
-				this.on('change:range', this.rangeChanged);
+				this.on('change:range', this.rangeChanged, this);
 
 				this.render();
 			},
