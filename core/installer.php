@@ -48,7 +48,7 @@ class Installer {
 			'<p>Dear [first_name] -</p>
 
 <p>We noticed that you forgot the following items in your shopping cart on
-<strong>[organization_name]</strong> today:</p>
+<strong>[organization_name]</strong>:</p>
     <p>[items]</p>
 <p>We know that sometimes life can get a bit hectic, so we wanted to remind
 you it''s still there.</p>
