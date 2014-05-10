@@ -1,7 +1,0 @@
-<?php \Maven\Core\UI\HtmlComponent::jSonComponent( 'CachedCategories', $cachedCategories ); ?>
-<?php \Maven\Core\UI\HtmlComponent::jSonComponent( 'CachedRoles', $cachedRoles ); ?>
-<div id="mainContainer">
-
-</div>
-
-	
